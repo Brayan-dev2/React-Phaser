@@ -58,6 +58,12 @@ export default function App() {
         this.nuvem.add(this.add.ellipse(35, 0, 75, 60, 0xffffff));
         this.nuvem.add(this.add.ellipse(70, 0, 50, 50, 0xffffff));
 
+        // Segunda nuvem
+        this.nuvem2 = this.add.container(-100, 50); // começa fora da tela (esquerda)
+        this.nuvem2.add(this.add.ellipse(0, 0, 50, 50, 0xffffff));
+        this.nuvem2.add(this.add.ellipse(35, 0, 75, 60, 0xffffff));
+        this.nuvem2.add(this.add.ellipse(70, 0, 50, 50, 0xffffff));
+
         // 🌳 ÁRVORE
         // Tronco (retângulo marrom)
         this.add.rectangle(550, h - 120, 30, 80, 0x6e2c00);
@@ -101,7 +107,7 @@ export default function App() {
         // Dividimos por 16 para que a velocidade seja parecida em
         // qualquer computador (não importa se ele é mais lento/rápido).
         //
-        // 0.08 = velocidade da nuvem (pode ajustar: maior = mais rápido)
+        // 0.08 = velocidade da nuvem (pode ajustar: maior = mais rápido)        
         this.nuvem.x += delta * 0.08;
 
         // Quando a nuvem sai pela direita, volta para a esquerda
@@ -109,6 +115,13 @@ export default function App() {
         // 870 = largura (800) + um pouco a mais para sumir antes de voltar
         if (this.nuvem.x > 870) {
           this.nuvem.x = -100;
+        }
+
+        this.nuvem2.x -= delta * 0.08;
+
+        // Invertendo direção da nuvem
+        if (this.nuvem2.x < -100) {
+          this.nuvem2.x = 870;
         }
       }
     }
