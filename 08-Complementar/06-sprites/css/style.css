@@ -1,0 +1,74 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 24px 16px;
+    background-color: #1a1c1e;
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.container {
+    width: min(100%, 560px);
+    text-align: center;
+}
+
+.sprite-stage {
+    --sprite-scale: clamp(2.5, 16vw, 5);
+    width: calc(70px * var(--sprite-scale));
+    height: calc(70px * var(--sprite-scale));
+    margin: 0 auto clamp(24px, 6vw, 50px);
+    position: relative;
+}
+
+/* Configuração do container do sprite baseado na sua imagem */
+#sprite-box {
+    width: 70px;
+    height: 70px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    
+    /* Substitua pelo caminho real onde você salvou a imagem */
+    background-image: url('../image/sprite-32x32.png'); 
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    
+    /* Mantém as bordas do pixel art nítidas */
+    image-rendering: pixelated; 
+    transform: translate(-50%, -50%) scale(var(--sprite-scale));
+    transform-origin: center;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Estilo simples para os botões */
+.controls button {
+    background-color: #3f444a;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 0;
+    min-height: 44px;
+    flex: 1 1 100px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.controls button:hover {
+    background-color: #5a6169;
+}
+
+@media (max-width: 360px) {
+    body { padding-inline: 10px; }
+    .controls { gap: 8px; }
+    .controls button { flex-basis: 85px; padding-inline: 8px; }
+}

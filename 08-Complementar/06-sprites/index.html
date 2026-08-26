@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Sprites 2D</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Janela de exibição do Sprite -->
+        <div class="sprite-stage" aria-label="Personagem animado">
+            <div id="sprite-box"></div>
+        </div>
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+        <!-- Controles para mudar a animação -->
+        <div class="controls" role="group" aria-label="Escolha de animação">
+            <button onclick="changeAnimation('idle')">Parado</button>
+            <button onclick="changeAnimation('run')">Correr</button>
+            <button onclick="changeAnimation('jump')">Pular</button>
+            <button onclick="changeAnimation('attack')">Atacar</button>
+            <button onclick="changeAnimation('climb')">Subir</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

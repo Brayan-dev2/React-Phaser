@@ -6,7 +6,9 @@ dist/
 build/
 out/
 .vite/
-
+Compactados/
+base/
+pong-v2/
 # Logs
 *.log
 npm-debug.log*
