@@ -1,0 +1,94 @@
+/* Estilização básica do corpo da página */
+body {
+    display: flex;                  /* Usa flexbox para centralizar o conteúdo */
+    justify-content: center;        /* Centraliza horizontalmente */
+    align-items: flex-start;        /* Alinha no topo para o conteúdo não ficar cortado */
+    min-height: 100vh;              /* Ocupa toda a altura da janela */
+    box-sizing: border-box;         /* Inclui padding e borda no cálculo de largura/altura */
+    padding: 40px 16px;             /* Espaçamento interno (topo/botão, laterais) */
+    background-color: #1a1c1e;      /* Cor de fundo escura */
+    margin: 0;                      /* Remove margens padrão */
+    font-family: sans-serif;        /* Define fonte padrão */
+}
+
+/* Container principal que agrupa palco do sprite e controles */
+.container {
+    width: min(100%, 900px);        /* Largura máxima de 900px, adaptando a telas menores */
+    display: flex;                  /* Organiza os filhos em coluna */
+    flex-direction: column;
+    align-items: center;            /* Centraliza os itens horizontalmente */
+    gap: 48px;                      /* Espaço fixo entre o palco do sprite e os botões */
+    text-align: center;             /* Centraliza o texto dentro do container */
+}
+
+/* Palco (área de exibição) do sprite animado */
+.sprite-stage {
+    --sprite-scale: 2;              /* Fator de escala do sprite (2x o tamanho original) */
+    width: calc(200px * var(--sprite-scale));  /* Largura do palco = frame × escala */
+    height: calc(240px * var(--sprite-scale)); /* Altura do palco  = frame × escala */
+    display: flex;                  /* Flexbox para centralizar o sprite-box dentro do palco */
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;                 /* Impede que o palco encolha em telas menores */
+    position: relative;             /* Contexto de posicionamento, se necessário */
+}
+
+/* Caixa que contém a sprite sheet como fundo e exibe um frame por vez */
+#sprite-box {
+    width: 200px;                   /* Largura original de cada frame */
+    height: 240px;                  /* Altura original de cada frame */
+    flex-shrink: 0;
+
+    background-image: url('../image/art1.jpg');  /* Caminho da sprite sheet */
+    background-repeat: no-repeat;               /* Evita repetição da imagem */
+    background-size: 1800px 1200px;             /* Tamanho original da sprite sheet (largura × altura) */
+    background-position: 0px 0px;               /* Posição inicial, alterada pelo JS */
+
+    image-rendering: pixelated;                 /* Mantém bordas nítidas no pixel art */
+    transform: scale(var(--sprite-scale));      /* Aumenta o sprite visualmente */
+    transform-origin: center center;            /* Escala a partir do centro, preservando alinhamento */
+}
+
+/* Área dos botões de controle */
+.controls {
+    display: flex;                  /* Usa flexbox para organizar os botões */
+    flex-wrap: wrap;                /* Permite quebra de linha dos botões em telas pequenas */
+    justify-content: center;        /* Centraliza os botões */
+    gap: 10px;                      /* Espaço entre os botões */
+    width: 100%;                    /* Ocupa toda a largura disponível */
+    max-width: 700px;               /* Largura máxima para não ficar muito espaçado */
+}
+
+/* Estilo simples para os botões */
+.controls button {
+    background-color: #3f444a;      /* Cor de fundo padrão */
+    color: white;                   /* Texto branco */
+    border: none;                   /* Remove borda padrão */
+    padding: 10px 15px;             /* Espaçamento interno */
+    margin: 0;                      /* Remove margens */
+    min-height: 44px;               /* Altura mínima para acessibilidade (toque) */
+    flex: 1 1 120px;                /* Flexível, mas com largura mínima de 120px */
+    cursor: pointer;                /* Mostra cursor de clique */
+    border-radius: 4px;             /* Bordas arredondadas */
+    font-weight: bold;              /* Texto em negrito */
+    transition: background-color 0.15s ease; /* Transição suave ao passar o mouse */
+}
+
+/* Efeito hover nos botões */
+.controls button:hover {
+    background-color: #5a6169;      /* Cor mais clara ao passar o mouse */
+}
+
+/* Efeito active (clique pressionado) */
+.controls button:active {
+    background-color: #4a5158;      /* Cor intermediária durante o clique */
+}
+
+/* Ajustes responsivos para telas muito pequenas */
+@media (max-width: 480px) {
+    body { padding-inline: 10px; }              /* Reduz padding lateral em telas pequenas */
+    .container { gap: 32px; }                   /* Reduz espaço entre palco e botões */
+    .sprite-stage { --sprite-scale: 1.5; }      /* Diminui escala do sprite em telas pequenas */
+    .controls { gap: 8px; }                     /* Diminui espaço entre botões */
+    .controls button { flex-basis: 100px; padding-inline: 8px; }  /* Ajusta tamanho dos botões */
+}

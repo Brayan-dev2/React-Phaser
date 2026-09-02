@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shinobi 2D</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Container principal: organiza palco do sprite e botões de controle -->
+    <div class="container">
+
+        <!-- Palco: janela de exibição do Sprite animado (contém o sprite-box) -->
+        <div class="sprite-stage" aria-label="Personagem animado">
+            <div id="sprite-box"></div>
+        </div>
+
+        <!-- Controles: botões para o usuário trocar a animação do personagem -->
+        <div class="controls" role="group" aria-label="Escolha de animação">
+            <button onclick="changeAnimation('idle')">Parado</button>
+            <button onclick="changeAnimation('walk')">Andando</button>
+            <button onclick="changeAnimation('run')">Correndo</button>
+            <button onclick="changeAnimation('jump')">Pulando</button>
+            <button onclick="changeAnimation('attack')">Atacando</button>
+        </div>
+
+    </div>
+
+    <!-- Script com toda a lógica de animação da sprite sheet -->
+    <script src="js/script.js"></script>
+</body>
+</html>
