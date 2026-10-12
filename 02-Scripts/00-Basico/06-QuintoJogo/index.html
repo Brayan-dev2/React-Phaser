@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1120" />
+  <title>Arena Relâmpago — Jogo de Luta 2D com React + Phaser</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <main class="pagina">
+    <header class="cabecalho">
+      <p class="etiqueta">REACT + PHASER · MEU QUINTO JOGO</p>
+      <h1>Arena Relâmpago <span>🥊</span></h1>
+      <p>Bola de fogo, projeção, bloqueio, golpe supremo e 8 lutadores. Dois jogadores, um jogador contra a máquina ou a máquina contra si mesma.</p>
+    </header>
+
+    <div id="game-container" aria-label="Jogo Arena Relâmpago"></div>
+
+    <p class="rodape">
+      P1: <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> <kbd>A</kbd> soco <kbd>D</kbd> chute <kbd>E</kbd> forte ·
+      P2: <kbd>H</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>T</kbd> ·
+      <kbd>A</kbd>+<kbd>D</kbd> projeção · com barra cheia = <b>SUPREMO</b> · <kbd>P</kbd> pausa · <kbd>M</kbd> som · <kbd>V</kbd> caixas · <kbd>I</kbd> ficha de golpes · <kbd>/</kbd> fita<br />
+      <small>na fita de comandos: <kbd>S</kbd> = soco · <kbd>C</kbd> = chute · <kbd>E</kbd> = golpe forte</small>
+    </p>
+    <section class="guia">
+      <details>
+        <summary>🎓 O que cada arquivo ensina (abra para ver)</summary>
+        <ul>
+          <li><code>src/jogo/dados.js</code> — vida, dano, os 8 personagens e o detector de comandos especiais.</li>
+          <li><code>src/jogo/desenhos.js</code> — os lutadores desenhados por código, quadro a quadro (nenhum PNG!).</li>
+          <li><code>src/jogo/ia.js</code> — a máquina que joga sozinha, escolhendo ações pela DISTÂNCIA.</li>
+          <li><code>src/jogo/menus.js</code> — título, escolha de lutador e tela de resultado com estatísticas.</li>
+          <li><code>src/jogo/luta.js</code> — física, golpes, bloqueio, combos, rounds, câmera e HUD.</li>
+          <li><code>src/main.js</code> — liga tudo no Phaser.</li>
+        </ul>
+        <p>Truques: adicione <code>?physics</code> na URL para ver as caixas de colisão do arcade, ou <code>?semzoom</code> para desligar o zoom da câmera.</p>
+      </details>
+    </section>
+  </main>
+
+  <script src="lib/phaser.min.js"></script>
+  <script src="src/jogo/dados.js"></script>
+  <script src="src/jogo/desenhos.js"></script>
+  <script src="src/jogo/ia.js"></script>
+  <script src="src/jogo/menus.js"></script>
+  <script src="src/jogo/luta.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>

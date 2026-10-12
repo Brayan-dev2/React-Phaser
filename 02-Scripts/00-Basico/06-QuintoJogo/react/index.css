@@ -1,0 +1,63 @@
+/* =====================================================================
+   ARENA RELÂMPAGO — estilo da PÁGINA (não do jogo!)
+   O jogo desenha tudo sozinho dentro de #game-container.
+   Este CSS só emoldura a arena: fundo escuro de ginásio, cabeçalho e rodapé.
+   ===================================================================== */
+* { box-sizing: border-box; }
+
+html, body { min-width: 320px; min-height: 100%; margin: 0; }
+
+body {
+  background: radial-gradient(circle at 50% -10%, #312e81 0, #1e1b4b 35%, #0b1120 75%, #020617 100%);
+  color: #e2e8f0;
+  font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+}
+
+.pagina {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+}
+
+.cabecalho { width: min(1280px, 100%); text-align: center; }
+.cabecalho .etiqueta { margin: 0 0 4px; color: #fbbf24; font-size: .74rem; font-weight: 800; letter-spacing: .2em; }
+.cabecalho h1 { margin: 0; color: #fff; font-size: clamp(1.5rem, 3vw, 2.3rem); line-height: 1.1; }
+.cabecalho h1 span { filter: drop-shadow(0 0 12px #f59e0b); }
+.cabecalho p:last-child { margin: 6px 0 0; color: #94a3b8; font-size: .93rem; }
+
+#game-container {
+  width: min(1280px, 100%);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 2px solid rgba(251, 191, 36, .35);
+  border-radius: 14px;
+  background: #0b1120;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .65), inset 0 0 90px rgba(49, 46, 129, .45);
+}
+#game-container canvas { display: block; width: 100% !important; height: 100% !important; }
+
+.rodape { margin: 0; color: #64748b; font-size: .76rem; text-align: center; }
+kbd {
+  padding: 2px 6px; border: 1px solid #475569; border-bottom-width: 3px; border-radius: 5px;
+  background: #1e293b; color: #fbbf24; font-weight: bold; font-family: inherit;
+}
+
+.guia { width: min(1280px, 100%); }
+.guia details {
+  border: 1px solid #1e293b; border-radius: 12px; background: #0f172acc; padding: 10px 16px;
+}
+.guia summary { cursor: pointer; color: #7dd3fc; font-weight: bold; font-size: .92rem; }
+.guia ul { margin: 10px 0; padding-left: 20px; color: #94a3b8; font-size: .86rem; line-height: 1.7; }
+.guia code { color: #fde047; background: #1e293b; padding: 1px 5px; border-radius: 4px; font-size: .85em; }
+.guia p { color: #64748b; font-size: .82rem; }
+
+@media (max-width: 640px) {
+  .pagina { padding: 8px; gap: 6px; }
+  .cabecalho p:last-child { font-size: .78rem; }
+  .rodape { font-size: .66rem; }
+  #game-container { border-radius: 8px; }
+}
