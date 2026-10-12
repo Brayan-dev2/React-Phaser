@@ -384,6 +384,15 @@ const DESINHOS = (function () {
         }
         g.generateTexture(chave, QUADRO_L * POSES.length, QUADRO_A);
         g.destroy();
+
+        /* generateTexture() cria uma textura com UM SÓ frame ('__BASE').
+           O jogo precisa de 14 frames numerados (0..13) para setFrame(n) e
+           para add.image(x, y, chave, 0). Então "fatiamos" a imagem grande
+           em quadros, do mesmo jeito que uma spritesheet de PNG faria. */
+        const textura = cena.textures.get(chave);
+        for (let i = 0; i < POSES.length; i++) {
+            textura.add(i, 0, i * QUADRO_L, 0, QUADRO_L, QUADRO_A);
+        }
         return chave;
     }
 
@@ -445,9 +454,9 @@ const DESINHOS = (function () {
 
         // Escudo de bloqueio (hexágono simples)
         g.fillStyle(0xffffff, 0.30);
-        g.fillRoundedRectangle(2, 2, 26, 52, 8);
+        g.fillRoundedRect(2, 2, 26, 52, 8);
         g.lineStyle(3, 0xffffff, 0.85);
-        g.strokeRoundedRectangle(2, 2, 26, 52, 8);
+        g.strokeRoundedRect(2, 2, 26, 52, 8);
         g.generateTexture('escudo', 30, 56);
         g.clear();
 

@@ -78,7 +78,10 @@ const MENUS = (function () {
                 const img = this.add.image(220 + mostrar.indexOf(i) * 420, cy + 150, chave, 0)
                     .setOrigin(0.5, 0.95).setScale(2.6).setAlpha(0.95);
                 this.tweens.add({ targets: img, y: cy + 142, duration: 700 + i * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-                this.tweens.add({ targets: img, frame: { from: 0, to: 1 }, duration: 420, yoyo: true, repeat: -1 });
+                // NÃO se tweena a propriedade "frame" (ela é um objeto, não um número).
+                // Animamos um contador e trocamos o quadro com setFrame().
+                this.tweens.addCounter({ from: 0, to: 1, duration: 420, yoyo: true, repeat: -1,
+                    onUpdate: (tw) => img.setFrame(Math.round(tw.getValue())) });
             }, this);
 
             const alerta = this.add.text(cx, cy + 24, 'PRESSIONE  [ENTER]   OU   CLIQUE NA TELA', {
@@ -202,7 +205,8 @@ const MENUS = (function () {
                 });
                 const chave = ARTE.gerarSpritesheet(this, p);
                 const retrato = this.add.image(pos.x, pos.y + 40, chave, 0).setOrigin(0.5, 0.95).setScale(1.5);
-                this.tweens.add({ targets: retrato, frame: { from: 0, to: 1 }, duration: 400 + i * 40, yoyo: true, repeat: -1 });
+                this.tweens.addCounter({ from: 0, to: 1, duration: 400 + i * 40, yoyo: true, repeat: -1,
+                    onUpdate: (tw) => retrato.setFrame(Math.round(tw.getValue())) });
                 this.add.text(pos.x, pos.y - 56, p.nome, { fontFamily: FONTE, fontSize: '18px', fontStyle: 'bold', color: '#e2e8f0' }).setOrigin(0.5);
                 this.boxes.push({ caixa: caixa, retrato: retrato, i: i });
             });
@@ -215,9 +219,9 @@ const MENUS = (function () {
         desenharPainel() {
             const g = this.add.graphics();
             g.fillStyle(0x0b1120, 0.92);
-            g.fillRoundedRectangle(812, 108, 440, 590, 16);
+            g.fillRoundedRect(812, 108, 440, 590, 16);
             g.lineStyle(2, 0x334155, 1);
-            g.strokeRoundedRectangle(812, 108, 440, 590, 16);
+            g.strokeRoundedRect(812, 108, 440, 590, 16);
             this.txtInfo = this.add.text(836, 280, '', { fontFamily: 'monospace', fontSize: '15px', color: '#e2e8f0', wordWrap: { width: 392 }, lineSpacing: 6 });
             this.txtGolpes = this.add.text(836, 480, '', { fontFamily: 'monospace', fontSize: '15px', color: '#fde047', lineSpacing: 6 });
             this.retrato = this.add.image(1032, 250, '__DEFAULT').setOrigin(0.5, 0.92).setScale(1.25);
@@ -469,7 +473,8 @@ const MENUS = (function () {
                 const chave = 'lutador-' + D.ELENCO.find(function (p) { return p.nome === est.nome; }).id;
                 if (this.textures.exists(chave)) {
                     const img = this.add.image(x, 560, chave, 0).setOrigin(0.5, 0.95).setScale(2.1);
-                    this.tweens.add({ targets: img, frame: { from: 0, to: 1 }, duration: 400, yoyo: true, repeat: -1 });
+                    this.tweens.addCounter({ from: 0, to: 1, duration: 400, yoyo: true, repeat: -1,
+                        onUpdate: (tw) => img.setFrame(Math.round(tw.getValue())) });
                 }
             });
 
