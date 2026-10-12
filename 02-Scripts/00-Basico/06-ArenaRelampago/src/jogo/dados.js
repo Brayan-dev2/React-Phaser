@@ -562,6 +562,33 @@ const DADOS = (function () {
         menu() { this.oscilar(760, 0.055, 'square', 0.10); }
         confirmar() { this.oscilar(520, 0.09, 'square', 0.12); this.oscilar(790, 0.17, 'square', 0.09); }
         apito() { this.oscilar(1250, 0.12, 'sine', 0.15); this.oscilar(1580, 0.10, 'sine', 0.11); }
+
+        /* ----- efeitos novos (v2) ----- */
+        // golpe pesado: um baque grave, com o ruído logo depois do tom
+        golpePesado() { this.oscilar(96, 0.22, 'sine', 0.35, 0.5); this.bater(0.18, 420, 0.75); }
+        // pegada leve (corrida / pouso rápido)
+        passo() { this.bater(0.05, 320, 0.22); }
+        // agarrão: clec curto e seco
+        agarrao() { this.oscilar(140, 0.18, 'square', 0.14, 0.5); this.bater(0.10, 600, 0.55); }
+        // projétil saindo: assobio que desce
+        projetil() { this.oscilar(1100, 0.22, 'sawtooth', 0.05, 0.25); this.bater(0.20, 2200, 0.12); }
+        // explosão de projétil: ruído grave + estalo
+        explosao() { this.bater(0.45, 1100, 0.6); this.oscilar(210, 0.35, 'square', 0.10, 0.2); }
+        // trovão: rugido grave e longo (usado pelo relâmpago do fundo)
+        trovao() { this.bater(1.8, 200, 0.9); this.oscilar(52, 1.4, 'sine', 0.22, 0.7); }
+        // supremo pronto: três notas subindo
+        superPronto() {
+            this.oscilar(523, 0.12, 'triangle', 0.14);
+            setTimeout(() => this.oscilar(659, 0.12, 'triangle', 0.14), 90);
+            setTimeout(() => this.oscilar(1046, 0.30, 'triangle', 0.16), 180);
+        }
+        // sino de início de round
+        sino() { this.oscilar(880, 0.9, 'sine', 0.25, 0.97); this.oscilar(1320, 0.7, 'sine', 0.12, 0.98); }
+        // fanfarra de vitória: arpejo maior
+        vitoria() {
+            [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.oscilar(f, 0.22, 'square', 0.12), i * 130));
+            setTimeout(() => this.oscilar(1046, 0.6, 'triangle', 0.18), 560);
+        }
     }
 
     const audio = new AudioJogo();

@@ -34,8 +34,9 @@ const LUTA = (function () {
 
     const FR = function (segundos) { return Math.max(1, Math.round(segundos * 60)); };
     const FONTE = 'Trebuchet MS';
-    const PE = ARTE.QUADRO_A - 6;           // pés dentro do frame (origem do sprite)
+    const PE = ARTE.DESENHO_A - 6;          // linha dos pés, em unidades do desenho (origem do sprite)
     const BUFFER_MS = 160;                  // tolerância para "apertei quase junto"
+    const LUTADOR_ESCALA = 1.35;            // pixels do mundo por unidade do desenho (tamanho na arena)
 
     /* =================================================================
        ETAPA 2 — ENTRADA UNIFICADA (teclado + gamepad)
@@ -140,14 +141,19 @@ const LUTA = (function () {
             const textura = ARTE.gerarSpritesheet(cena, this.personagem);
             const xInicial = numero === 1 ? 620 : 980;
             this.sprite = cena.physics.add.sprite(xInicial, D.CHAO_Y, textura, 0);
-            this.sprite.setOrigin(0.5, PE / ARTE.QUADRO_A);
-            this.sprite.setScale(1.35);
+            this.sprite.setOrigin(0.5, PE / ARTE.DESENHO_A);
+            // A textura tem UNIDADE px por unidade do desenho (quadro de 128 px = 4x o desenho).
+            // A escala converte pixels da textura em pixels do MUNDO: o lutador continua
+            // com o mesmo tamanho na arena, e as caixas de golpe continuam batendo certo.
+            const U = ARTE.UNIDADE;
+            this.sprite.setScale(LUTADOR_ESCALA / U);
             this.sprite.setDepth(10 + numero);
             this.sprite.dono = this;                     // quem manda neste sprite
 
+            // Caixa de colisão em unidades do desenho (48x100), convertida para pixels da textura.
             const corpo = this.sprite.body;
-            corpo.setSize(48, 100, false);
-            corpo.setOffset((ARTE.QUADRO_L - 48) / 2, ARTE.QUADRO_A - 100 - (ARTE.QUADRO_A - PE));
+            corpo.setSize(48 * U, 100 * U, false);
+            corpo.setOffset(((ARTE.DESENHO_L - 48) / 2) * U, (ARTE.DESENHO_A - 100 - (ARTE.DESENHO_A - PE)) * U);
             corpo.setCollideWorldBounds(true);
             corpo.setBounce(0, 0);
             corpo.setAllowGravity(true);
@@ -681,6 +687,10 @@ const LUTA = (function () {
             this.cena.time.delayedCall(60, () => { if (this.sprite.active) this.sprite.clearTint(); });
             this.cena.impacto(this, dano, at);
             if (at && at.tremor) this.cena.tremor(at.tremor);
+            if (at && (at.eSuper || danoBase >= 11)) {
+                D.audio.golpePesado();
+                this.cena.congelar(FR(0.05));           // "pausa de impacto": o golpe pesa mais
+            }
             D.audio[at && (at.tipo === 'melee' || at.tipo === 'investida') ? 'chute' : 'soco']();
             if (at && at.eSuper) this.cena.tremor(14);
 
@@ -769,6 +779,7 @@ const LUTA = (function () {
 
         aoPousar() {
             this.cena.poeira(this.sprite.x, D.CHAO_Y);
+            EFEITOS.anel(this.cena, this.sprite.x, D.CHAO_Y, 0xe2e8f0, 0.9, 260);
             if (this.lancado || (this.hitstun > 0 && !this.ataqueAtual)) {
                 this.lancado = false;
                 this.knockdown = Math.max(this.knockdown, FR(0.45));
@@ -806,8 +817,28 @@ const LUTA = (function () {
             this.aplicarFisica();
             this.atualizarVisual();
             this.desenharBarraDeCarga();
+            this.efeitosDeEstado();
             this.ant = Object.assign({}, this.cru);
             void delta;
+        }
+
+        /* Efeitos que dependem do estado do lutador: rastro de velocidade e supremo pronto. */
+        efeitosDeEstado() {
+            const frames = this.cena.frames;
+            const cor = this.personagem.paleta.aura;
+            const emGolpeSuper = this.ataqueAtual && this.ataqueAtual.eSuper;
+            if ((this.correrAte > frames || emGolpeSuper) && frames % 3 === 0) {
+                EFEITOS.fantasma(this.cena, this.sprite, cor);
+            }
+            if (this.superCarga >= D.SUPER_MAXIMO) {
+                if (!this.superAvisado) {
+                    this.superAvisado = true;
+                    D.audio.superPronto();
+                }
+                if (frames % 24 === 0) EFEITOS.auraDeSuper(this.cena, this.sprite.x, this.sprite.y - 110, cor);
+            } else {
+                this.superAvisado = false;
+            }
         }
 
         lerComandos() {
@@ -888,8 +919,11 @@ const LUTA = (function () {
 
             this.criarChao();
             this.criarHud();
+            this.vinheta = EFEITOS.criarVinheta(this);   // escurece as bordas (foco no centro)
+            this.proximoRaio = FR(5);                    // quando cai o próximo relâmpago
+            MUSICA.tocar(this, 'luta');
 
-            this.cameras.setBounds(0, 0, D.LARGURA_MUNDO, D.ALTURA_MUNDO);
+            this.cameras.main.setBounds(0, 0, D.LARGURA_MUNDO, D.ALTURA_MUNDO);
             this.cameras.main.setBackgroundColor('#0b1120');
             this.zoomAtivo = !(this.config.semZoom || (typeof window !== 'undefined' && window.location.search.indexOf('semzoom') >= 0));
             this.cameras.main.setZoom(this.zoomAtivo ? 1.15 : 1);
@@ -905,11 +939,13 @@ const LUTA = (function () {
             };
 
             this.mensagemDeBoasVindas();
+            this.inicioDeRound();
             this.time.delayedCall(60, () => this.cameras.main.fadeIn(320, 8, 8, 16));
         }
 
         texturasBase() {
             ARTE.gerarEfeitos(this);
+            EFEITOS.preparar(this);
         }
 
         /* ---------------------------------------------------------------
@@ -1008,7 +1044,7 @@ const LUTA = (function () {
                 g.strokePath();
             }
             g.lineStyle(3, 0x0ea5e9, 0.35);
-            g.strokeRoundedRectangle(70, D.CHAO_Y + 26, W - 140, 150, 24);
+            g.strokeRoundedRect(70, D.CHAO_Y + 26, W - 140, 150, 24);
 
         }
 
@@ -1068,7 +1104,8 @@ const LUTA = (function () {
                 stroke: '#7c2d12', strokeThickness: 12
             }).setOrigin(0.5).setScrollFactor(0).setDepth(130).setAlpha(0);
             this.subAvisoTxt = this.add.text(D.LARGURA_TELA / 2, D.ALTURA_TELA / 2 + 40, '', {
-                fontFamily: FONTE, fontSize: '30px', color: '#e2e8f0', stroke: '#0b1120', strokeThickness: 6
+                fontFamily: FONTE, fontSize: '26px', color: '#e2e8f0', stroke: '#0b1120', strokeThickness: 6,
+                align: 'center', wordWrap: { width: D.LARGURA_TELA - 160 }
             }).setOrigin(0.5).setScrollFactor(0).setDepth(130).setAlpha(0);
 
             this.cortina = this.add.rectangle(D.LARGURA_TELA / 2, D.ALTURA_TELA / 2, D.LARGURA_TELA, D.ALTURA_TELA, 0x000000, 0).setScrollFactor(0).setDepth(129);
@@ -1222,6 +1259,10 @@ const LUTA = (function () {
             this.tremor(16);
             this.congelar(FR(0.35));
             this.cameraDeSuper(true, lutador);
+            const cor = lutador.personagem.paleta.aura;
+            EFEITOS.linhasDeVelocidade(this, cor, 22);
+            EFEITOS.faiscas(this, lutador.sprite.x, lutador.sprite.y - 80, cor, 26, 1.3);
+            EFEITOS.pulsoDeTela(this, cor, 0.22);
         }
 
         /** Cortina escura + zoom forçado: o "drama" do golpe supremo. */
@@ -1259,6 +1300,9 @@ const LUTA = (function () {
         impacto(defensor, dano, at) {
             const x = defensor.sprite.x;
             const y = defensor.sprite.y - (defensor.agachado ? 40 : 70);
+            const cor = at && at.eSuper ? 0xfde047 : 0xbae6fd;
+            EFEITOS.faiscas(this, x, y, cor, at && at.eSuper ? 18 : 10, at && at.eSuper ? 1.4 : 1);
+            EFEITOS.anel(this, x, y, cor, at && at.eSuper ? 2.6 : 1.3, at && at.eSuper ? 420 : 260);
             const estrela = this.add.image(x, y, 'impacto')
                 .setDepth(30)
                 .setTint(at && at.eSuper ? 0xfde047 : 0xffffff)
@@ -1280,6 +1324,7 @@ const LUTA = (function () {
 
         escudoDeBloqueio(defensor) {
             const x = defensor.sprite.x + 24 * defensor.sinal;
+            EFEITOS.faiscas(this, x, defensor.sprite.y - 60, 0x93c5fd, 7, 0.7);
             const escudo = this.add.image(x, defensor.sprite.y - 60, 'escudo').setDepth(29).setTint(0x93c5fd).setAlpha(0.9).setScale(0.8);
             this.tweens.add({ targets: escudo, alpha: 0, scaleX: 1.4, duration: 200, onComplete: () => escudo.destroy() });
         }
@@ -1351,6 +1396,7 @@ const LUTA = (function () {
         }
 
         executarProjecao(atacante, defensor, at) {
+            D.audio.agarrao();
             defensor.estaAgarrado = true;
             atacante.agarrando = true;
             defensor.ataqueAtual = null;
@@ -1447,6 +1493,8 @@ const LUTA = (function () {
             sprite.x -= indice * 46 * dono.sinal;   // super com 3 bolas: uma atrás da outra
             this.projeteis.push(sprite);
             D.audio.energia();
+            D.audio.projetil();
+            EFEITOS.faiscas(this, x, y, info.cor || 0x38bdf8, 8, 0.6);
         }
 
         projeteisDo(lutador) {
@@ -1464,6 +1512,7 @@ const LUTA = (function () {
                 if (p.info.fogo) p.setScale((p.info.raio || 16) / 16 * (1 + Math.sin(this.frames / 3) * 0.12));
                 else p.rotation += 0.24;
                 p.vida -= delta;
+                if (this.frames % 2 === 0) EFEITOS.brilhoPontual(this, p.x, p.y, p.info.cor || 0x38bdf8, (p.info.raio || 16) / 40);
 
                 const alvo = p.dono.inimigo;
                 const caixa = new Phaser.Geom.Rectangle(p.x - 14, p.y - 14, 28, 28);
@@ -1502,7 +1551,8 @@ const LUTA = (function () {
         estourar(p, silencioso) {
             const e = this.add.image(p.x, p.y, 'impacto').setDepth(28).setTint(p.info.cor || 0x38bdf8).setScale(0.5);
             this.tweens.add({ targets: e, scale: 1.6, alpha: 0, duration: 180, onComplete: () => e.destroy() });
-            if (!silencioso) D.audio.soco();
+            EFEITOS.faiscas(this, p.x, p.y, p.info.cor || 0x38bdf8, 14, 1.0);
+            if (!silencioso) D.audio.explosao();
             p.destroy();
             const i = this.projeteis.indexOf(p);
             if (i >= 0) this.projeteis.splice(i, 1);
@@ -1522,6 +1572,10 @@ const LUTA = (function () {
             const vencedor = (a.vida <= 0 && b.vida <= 0) ? -1 : (a.vida <= 0 ? 1 : 0);
             this.tremor(18);
             D.audio.ko();
+            const perdedor = (a.vida <= 0) ? a : b;
+            EFEITOS.pulsoDeTela(this, 0xffffff, 0.5);
+            EFEITOS.faiscas(this, perdedor.sprite.x, perdedor.sprite.y - 90, 0xfca5a5, 26, 1.5);
+            this.camaraLenta(FR(0.6));
             this.time.delayedCall(620, () => this.terminarRound(vencedor, 'K.O.!'));
         }
 
@@ -1551,6 +1605,23 @@ const LUTA = (function () {
             });
         }
 
+        /* Começo de round: sino, linhas de velocidade e um relâmpago no céu. */
+        inicioDeRound() {
+            D.audio.sino();
+            EFEITOS.linhasDeVelocidade(this, 0xffffff, 18);
+            EFEITOS.relampagoAleatorio(this);
+        }
+
+        /* Câmera lenta: física e animações desaceleram um instante (K.O. dramático). */
+        camaraLenta(frames) {
+            this.physics.world.timeScale = 2.4;
+            this.tweens.timeScale = 0.35;
+            this.time.delayedCall(frames / 60 * 1000, () => {
+                this.physics.world.timeScale = 1;
+                this.tweens.timeScale = 1;
+            });
+        }
+
         proximoRound() {
             this.round++;
             this.lutadores.forEach((l, i) => {
@@ -1565,6 +1636,7 @@ const LUTA = (function () {
                 l.comboAtual = 0;
                 if (l.ia) l.ia.proximaAcao = 0;
             });
+            this.inicioDeRound();
             this.cortina.setAlpha(0);
             this.koPendente = false;
             this.tempoRestante = D.SEGUNDOS_POR_ROUND;
@@ -1578,6 +1650,8 @@ const LUTA = (function () {
             this.estado = 'fim';
             const quem = this.vitorias[0] > this.vitorias[1] ? 0 : 1;
             const vencedor = this.lutadores[quem];
+            D.audio.vitoria();
+            EFEITOS.faiscasSobem(this, vencedor.sprite.x, vencedor.sprite.y - 120, vencedor.personagem.paleta.aura, 24);
             const dados = {
                 vencedorNome: vencedor.personagem.nome + ' — ' + vencedor.personagem.titulo,
                 venceuJogador: quem === 0,
@@ -1652,7 +1726,13 @@ const LUTA = (function () {
             if (Phaser.Input.Keyboard.JustDown(this.teclasGerais.P) || Phaser.Input.Keyboard.JustDown(this.teclasGerais.ESC)) this.alternarPausa();
             if (Phaser.Input.Keyboard.JustDown(this.teclasGerais.M)) {
                 const mudo = D.audio.alternarMudo();
+                MUSICA.mudo(this, mudo);
                 this.golpeNaTela(this.lutadores[0], mudo ? 'SOM DESLIGADO' : 'SOM LIGADO');
+            }
+            if (this.estado === 'lutando' && this.frames >= this.proximoRaio) {
+                EFEITOS.relampagoAleatorio(this);
+                D.audio.trovao();
+                this.proximoRaio = this.frames + FR(7 + Math.random() * 9);
             }
             if (Phaser.Input.Keyboard.JustDown(this.teclasGerais.I)) this.mostrarComandos = !this.mostrarComandos;
             if (Phaser.Input.Keyboard.JustDown(this.teclasGerais.V)) {
@@ -1716,6 +1796,7 @@ const LUTA = (function () {
 
         alternarPausa() {
             this.pausado = !this.pausado;
+            MUSICA.pausar(this.pausado);
             if (this.pausado) {
                 this.physics.world.pause();
                 this.cortina.setAlpha(0.7);

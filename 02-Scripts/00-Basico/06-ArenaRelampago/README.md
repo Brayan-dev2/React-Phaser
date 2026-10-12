@@ -158,3 +158,17 @@ número em `dados.js` e teste de novo. É exatamente isso que um *game designer*
 faz o dia inteiro.
 
 Licença: MIT (como todo o repositório). Bons treinos! 🥋
+
+---
+
+## 🆕 Novidades da versão 2
+
+- **Sprites em 128 px de largura** (quadro de 384 × 704 px na textura, em 3× de resolução). O tamanho do lutador na arena continua o mesmo, para as caixas de golpe continuarem batendo com o desenho. Veja `assets/README.md`.
+- **Efeitos visuais** (`src/jogo/efeitos.js`): faíscas com brilho aditivo nos golpes, anel de impacto, rastro de velocidade, aura quando o supremo está pronto, linhas de velocidade no início do round, relâmpagos aleatórios no céu, vinheta nas bordas, pulso de tela e câmera lenta no K.O.
+- **Efeitos sonoros novos** (`src/jogo/dados.js`, ETAPA 6): golpe pesado, projétil, explosão, trovão, supremo pronto, sino de round, fanfarra de vitória e agarrão.
+- **Três trilhas de fundo** (`assets/musica/`, geradas por `ferramentas/gerar_musicas.py`):
+  - `titulo.mp3`: ambiente com chuva e trovão (96 BPM)
+  - `selecao.mp3`: groove funk (118 BPM)
+  - `luta.mp3`: agressiva (150 BPM)
+  
+  `src/jogo/musica.js` troca a trilha conforme a tela. A tecla **M** liga e desliga o som, inclusive a música.

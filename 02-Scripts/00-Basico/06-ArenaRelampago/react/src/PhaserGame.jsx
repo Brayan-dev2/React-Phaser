@@ -20,6 +20,8 @@ import Phaser from 'phaser'
 const ORDEM_DOS_ARQUIVOS = [
   () => import('jogo/dados.js'),
   () => import('jogo/desenhos.js'),
+  () => import('jogo/efeitos.js'),
+  () => import('jogo/musica.js'),
   () => import('jogo/ia.js'),
   () => import('jogo/menus.js'),
   () => import('jogo/luta.js'),

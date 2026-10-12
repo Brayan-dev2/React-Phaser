@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exportar spritesheets — Arena Relâmpago</title>
+  <style>
+    body { margin: 0; padding: 20px; background: #0b1120; color: #e2e8f0; font-family: system-ui, sans-serif; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    p { color: #94a3b8; margin: 4px 0 16px; font-size: 14px; }
+    button { background: #f97316; color: #0b1120; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
+    .lista { margin-top: 20px; display: flex; flex-direction: column; gap: 18px; }
+    .item h2 { font-size: 16px; margin: 0 0 6px; color: #fbbf24; }
+    .item img { display: block; max-width: 100%; background: repeating-conic-gradient(#1e293b 0% 25%, #0f172a 0% 50%) 50% / 24px 24px; border: 1px solid #334155; border-radius: 6px; image-rendering: auto; }
+  </style>
+</head>
+<body>
+  <h1>Exportar spritesheets dos lutadores</h1>
+  <p>
+    Gera um PNG por lutador: 14 quadros em uma linha, cada um de 384 × 704 px (quadro lógico de 128 px de largura).
+    Os arquivos são gravados em <code>assets/sprites/</code>. O jogo os carrega automaticamente.
+    Use o botão para baixar, ou rode <code>exportarTudo()</code> no console para obter os dados.
+  </p>
+  <button id="baixar">Baixar os 8 PNGs</button>
+  <div id="lista" class="lista"></div>
+
+  <script src="../src/jogo/dados.js"></script>
+  <script src="../src/jogo/desenhos.js"></script>
+  <script>
+    /* Usa exatamente o mesmo desenho do jogo (desenhos.js), só que em alta resolução. */
+    function exportarTudo() {
+      const resultado = {};
+      window.DADOS.ELENCO.forEach(function (p) {
+        const canvas = window.DESINHOS.criarCanvasSpritesheet(p);
+        resultado[p.id] = canvas.toDataURL('image/png');
+      });
+      return resultado;
+    }
+    window.exportarTudo = exportarTudo;
+
+    function baixar(nome, dataUrl) {
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = nome + '.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    const lista = document.getElementById('lista');
+    window.DADOS.ELENCO.forEach(function (p) {
+      const div = document.createElement('div');
+      div.className = 'item';
+      const h = document.createElement('h2');
+      h.textContent = p.nome + ' — ' + p.titulo + '  (' + p.id + '.png)';
+      const img = document.createElement('img');
+      img.src = window.DESINHOS.criarCanvasSpritesheet(p).toDataURL('image/png');
+      img.alt = 'Spritesheet de ' + p.nome;
+      div.appendChild(h);
+      div.appendChild(img);
+      lista.appendChild(div);
+    });
+
+    document.getElementById('baixar').addEventListener('click', function () {
+      const dados = exportarTudo();
+      Object.keys(dados).forEach(function (id) { baixar(id, dados[id]); });
+    });
+  </script>
+</body>
+</html>

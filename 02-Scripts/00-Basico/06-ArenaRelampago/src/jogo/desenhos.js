@@ -33,8 +33,18 @@ const DESINHOS = (function () {
        CENTRO do frame (x=48), porque é em volta dele que o corpo gira.
        Os pés tocam y=170 (a caixa de colisão tem 100 px de altura).
        ----------------------------------------------------------------- */
-    const QUADRO_L = 96;
-    const QUADRO_A = 176;
+    /* O desenho das poses é feito numa "planta" de 96 x 176 unidades (DESENHO_L/A).
+       O QUADRO do sprite agora tem 128 px de largura (QUADRO_L): cada unidade do
+       desenho vira UNIDADE pixels da textura. Assim o lutador ganha detalhe sem
+       mudar nenhuma coordenada das poses. */
+    const DESENHO_L = 96;
+    const DESENHO_A = 176;
+    const QUADRO_L = 128;            // largura do quadro em pixels LÓGICOS
+    const QUADRO_A = DESENHO_A * QUADRO_L / DESENHO_L;   // 234,67 (mesma proporção)
+    const ESCALA = 3;                // pixels da textura por pixel lógico (alta resolução)
+    const FRAME_TEX_L = QUADRO_L * ESCALA;               // 384 px na textura
+    const FRAME_TEX_A = Math.round(QUADRO_A * ESCALA);   // 704 px na textura
+    const UNIDADE = FRAME_TEX_L / DESENHO_L;             // 4 px de textura por unidade do desenho
     const CENTRO_X = 48;
     const PE_Y = 170;
     const QUADRIL_Y = 112;
@@ -369,31 +379,119 @@ const DESINHOS = (function () {
 
     /* -----------------------------------------------------------------
        ETAPA 9.4 — MONTAGEM DA SPRITESHEET
-       Desenhamos os 14 frames, "fotografamos" com generateTexture e
-       destruímos o Graphics (senão a memória enche de lixo).
        ----------------------------------------------------------------- */
-    function gerarSpritesheet(cena, personagem) {
-        const chave = 'lutador-' + personagem.id;
-        if (cena.textures.exists(chave)) return chave;
 
-        const g = cena.make.graphics({ x: 0, y: 0, add: false });
+    /**
+     * "Desenhista" de Canvas 2D com a MESMA interface de Phaser.Graphics que
+     * as poses usam (fillRect, fillCircle, lineStyle, strokePath...).
+     * Assim o mesmo código de desenho serve para:
+     *   - gerar a spritesheet em tempo de execução (fallback), e
+     *   - exportar os PNGs de alta resolução (ferramentas/exportar-spritesheets.html).
+     */
+    function criarDesenhador(ctx) {
+        let corPreench = 'rgba(0,0,0,1)';
+        let corLinha = 'rgba(0,0,0,1)';
+        let espessura = 1;
+        const rgba = function (cor, alfa) {
+            const a = alfa === undefined ? 1 : alfa;
+            return 'rgba(' + ((cor >> 16) & 255) + ',' + ((cor >> 8) & 255) + ',' + (cor & 255) + ',' + a + ')';
+        };
+        const d = {
+            fillStyle(cor, alfa) { corPreench = rgba(cor, alfa); return d; },
+            lineStyle(larg, cor, alfa) { espessura = larg; corLinha = rgba(cor, alfa); return d; },
+            fillRect(x, y, w, h) { ctx.fillStyle = corPreench; ctx.fillRect(x, y, w, h); return d; },
+            fillCircle(x, y, r) { ctx.fillStyle = corPreench; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); return d; },
+            fillTriangle(x1, y1, x2, y2, x3, y3) {
+                ctx.fillStyle = corPreench; ctx.beginPath();
+                ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x3, y3); ctx.closePath(); ctx.fill(); return d;
+            },
+            fillEllipse(x, y, w, h) { ctx.fillStyle = corPreench; ctx.beginPath(); ctx.ellipse(x, y, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.fill(); return d; },
+            strokeEllipse(x, y, w, h) {
+                ctx.beginPath(); ctx.ellipse(x, y, w / 2, h / 2, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = corLinha; ctx.lineWidth = espessura; ctx.stroke(); return d;
+            },
+            fillRoundedRect(x, y, w, h, r) { ctx.fillStyle = corPreench; ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fill(); return d; },
+            strokeRoundedRect(x, y, w, h, r) {
+                ctx.beginPath(); ctx.roundRect(x, y, w, h, r);
+                ctx.strokeStyle = corLinha; ctx.lineWidth = espessura; ctx.stroke(); return d;
+            },
+            beginPath() { ctx.beginPath(); return d; },
+            moveTo(x, y) { ctx.moveTo(x, y); return d; },
+            lineTo(x, y) { ctx.lineTo(x, y); return d; },
+            strokePath() {
+                ctx.strokeStyle = corLinha; ctx.lineWidth = espessura;
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.stroke(); return d;
+            }
+        };
+        return d;
+    }
+
+    /**
+     * Desenha as 14 poses em um canvas de alta resolução (ESCALA x).
+     * Cada pose é recortada no seu próprio quadro (clip), então nenhuma
+     * pose invade a vizinha.
+     */
+    function criarCanvasSpritesheet(personagem) {
+        const canvas = document.createElement('canvas');
+        canvas.width = FRAME_TEX_L * POSES.length;
+        canvas.height = FRAME_TEX_A;
+        const ctx = canvas.getContext('2d');
+        const g = criarDesenhador(ctx);
         for (let i = 0; i < POSES.length; i++) {
-            g.x = i * QUADRO_L;
-            g.y = 0;
+            ctx.save();
+            ctx.setTransform(UNIDADE, 0, 0, UNIDADE, i * FRAME_TEX_L, 0);
+            ctx.beginPath();
+            ctx.rect(0, 0, DESENHO_L, DESENHO_A);
+            ctx.clip();
             desenharPose(g, personagem.paleta, POSES[i], personagem.corpo, personagem.cabelo);
+            ctx.restore();
         }
-        g.generateTexture(chave, QUADRO_L * POSES.length, QUADRO_A);
-        g.destroy();
+        return canvas;
+    }
 
-        /* generateTexture() cria uma textura com UM SÓ frame ('__BASE').
-           O jogo precisa de 14 frames numerados (0..13) para setFrame(n) e
-           para add.image(x, y, chave, 0). Então "fatiamos" a imagem grande
-           em quadros, do mesmo jeito que uma spritesheet de PNG faria. */
+    /** Pede ao Phaser que suavize a textura (ela é grande e é reduzida na tela). */
+    function prepararTextura(cena, chave) {
         const textura = cena.textures.get(chave);
-        for (let i = 0; i < POSES.length; i++) {
-            textura.add(i, 0, i * QUADRO_L, 0, QUADRO_L, QUADRO_A);
+        if (textura && textura.setFilter && cena.sys.game.renderer.type !== Phaser.CANVAS) {
+            textura.setFilter(Phaser.Textures.FilterMode.LINEAR);
         }
         return chave;
+    }
+
+    /** Fatia uma textura com a grade ESCALA x (14 quadros numerados 0..13). */
+    function fatiar(cena, chave) {
+        const textura = cena.textures.get(chave);
+        for (let i = 0; i < POSES.length; i++) {
+            if (!textura.has(i)) textura.add(i, 0, i * FRAME_TEX_L, 0, FRAME_TEX_L, FRAME_TEX_A);
+        }
+    }
+
+    /** Pede para carregar os PNGs de assets/sprites/ (um por lutador). */
+    function carregarSpritesheets(cena, elenco) {
+        elenco.forEach(function (p) {
+            const chave = 'lutador-' + p.id;
+            if (cena.textures.exists(chave)) return;
+            cena.load.spritesheet(chave, 'assets/sprites/' + p.id + '.png', {
+                frameWidth: FRAME_TEX_L,
+                frameHeight: FRAME_TEX_A
+            });
+        });
+    }
+
+    /**
+     * Devolve a chave da textura do lutador. Usa o PNG carregado; se ele não
+     * existir (arquivo ausente), gera a spritesheet pelo código como reserva.
+     */
+    function gerarSpritesheet(cena, personagem) {
+        const chave = 'lutador-' + personagem.id;
+        if (cena.textures.exists(chave)) {
+            fatiar(cena, chave);
+            return prepararTextura(cena, chave);
+        }
+        cena.textures.addCanvas(chave, criarCanvasSpritesheet(personagem));
+        fatiar(cena, chave);
+        return prepararTextura(cena, chave);
     }
 
     /* -----------------------------------------------------------------
@@ -477,8 +575,8 @@ const DESINHOS = (function () {
     }
 
     return {
-        QUADRO_L, QUADRO_A, PE_Y, POSES,
-        desenharPose, gerarSpritesheet, gerarEfeitos, desenharRetrato, CORPOS
+        QUADRO_L, QUADRO_A, DESENHO_L, DESENHO_A, ESCALA, UNIDADE, PE_Y, POSES,
+        desenharPose, criarCanvasSpritesheet, carregarSpritesheets, gerarSpritesheet, gerarEfeitos, desenharRetrato, CORPOS
     };
 })();
 

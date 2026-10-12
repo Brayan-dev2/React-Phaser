@@ -30,8 +30,16 @@ const MENUS = (function () {
     class Titulo extends Phaser.Scene {
         constructor() { super('Titulo'); }
 
+        /* Carrega as 8 spritesheets (PNG) uma única vez: as texturas ficam
+           disponíveis em todas as cenas do jogo. */
+        preload() {
+            ARTE.carregarSpritesheets(this, D.ELENCO);
+            MUSICA.carregar(this);
+        }
+
         create() {
             window.ESTADO = window.ESTADO || {};
+            MUSICA.tocar(this, 'titulo');
             const cx = D.LARGURA_TELA / 2;
             const cy = D.ALTURA_TELA / 2;
 
@@ -71,13 +79,13 @@ const MENUS = (function () {
             }).setOrigin(0.5);
 
             // três lutadores posing no título (aproveita o mesmo desenhista!)
-            const mostrar = [0, 3, 6];
+            const mostrar = [0, 6];
             D.ELENCO.forEach(function (p, i) {
                 if (mostrar.indexOf(i) < 0) return;
                 const chave = ARTE.gerarSpritesheet(this, p);
-                const img = this.add.image(220 + mostrar.indexOf(i) * 420, cy + 150, chave, 0)
-                    .setOrigin(0.5, 0.95).setScale(2.6).setAlpha(0.95);
-                this.tweens.add({ targets: img, y: cy + 142, duration: 700 + i * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+                const img = this.add.image(170 + mostrar.indexOf(i) * 940, cy + 170, chave, 0)
+                    .setOrigin(0.5, 0.95).setScale(2.3 / ARTE.UNIDADE).setAlpha(0.95);
+                this.tweens.add({ targets: img, y: cy + 162, duration: 700 + i * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
                 // NÃO se tweena a propriedade "frame" (ela é um objeto, não um número).
                 // Animamos um contador e trocamos o quadro com setFrame().
                 this.tweens.addCounter({ from: 0, to: 1, duration: 420, yoyo: true, repeat: -1,
@@ -148,6 +156,7 @@ const MENUS = (function () {
         constructor() { super('Selecao'); }
 
         create() {
+            MUSICA.tocar(this, 'selecao');
             const e = window.ESTADO;
             this.modo = e.modo === undefined ? 0 : e.modo;
             this.dificuldade = e.dificuldade === undefined ? 1 : e.dificuldade;
@@ -204,7 +213,7 @@ const MENUS = (function () {
                     D.audio.menu();
                 });
                 const chave = ARTE.gerarSpritesheet(this, p);
-                const retrato = this.add.image(pos.x, pos.y + 40, chave, 0).setOrigin(0.5, 0.95).setScale(1.5);
+                const retrato = this.add.image(pos.x, pos.y + 40, chave, 0).setOrigin(0.5, 0.95).setScale(1.5 / ARTE.UNIDADE);
                 this.tweens.addCounter({ from: 0, to: 1, duration: 400 + i * 40, yoyo: true, repeat: -1,
                     onUpdate: (tw) => retrato.setFrame(Math.round(tw.getValue())) });
                 this.add.text(pos.x, pos.y - 56, p.nome, { fontFamily: FONTE, fontSize: '18px', fontStyle: 'bold', color: '#e2e8f0' }).setOrigin(0.5);
@@ -224,7 +233,7 @@ const MENUS = (function () {
             g.strokeRoundedRect(812, 108, 440, 590, 16);
             this.txtInfo = this.add.text(836, 280, '', { fontFamily: 'monospace', fontSize: '15px', color: '#e2e8f0', wordWrap: { width: 392 }, lineSpacing: 6 });
             this.txtGolpes = this.add.text(836, 480, '', { fontFamily: 'monospace', fontSize: '15px', color: '#fde047', lineSpacing: 6 });
-            this.retrato = this.add.image(1032, 250, '__DEFAULT').setOrigin(0.5, 0.92).setScale(1.25);
+            this.retrato = this.add.image(1032, 250, '__DEFAULT').setOrigin(0.5, 0.92).setScale(1.25 / ARTE.UNIDADE);
             this.add.text(836, 460, 'GOLPES ESPECIAIS  (aprenda os desenhos!)', { fontFamily: FONTE, fontSize: '14px', color: '#38bdf8' });
             this.txtNome = this.add.text(1032, 128, '', { fontFamily: FONTE, fontSize: '26px', fontStyle: 'bold', color: '#fbbf24' }).setOrigin(0.5);
         }
@@ -439,6 +448,7 @@ const MENUS = (function () {
         constructor() { super('Resultado'); }
 
         create() {
+            MUSICA.tocar(this, 'titulo');
             const r = (window.ESTADO && window.ESTADO.resultado) || {
                 vencedorNome: 'KIRO — O Monge da Chama', venceuJogador: true, placar: '2 x 1',
                 estatisticas: [], comando: '→ ↓ ↘ → + S', nomeGolpe: 'Esfera de Luz'
@@ -472,7 +482,7 @@ const MENUS = (function () {
                 }, this);
                 const chave = 'lutador-' + D.ELENCO.find(function (p) { return p.nome === est.nome; }).id;
                 if (this.textures.exists(chave)) {
-                    const img = this.add.image(x, 560, chave, 0).setOrigin(0.5, 0.95).setScale(2.1);
+                    const img = this.add.image(x, 560, chave, 0).setOrigin(0.5, 0.95).setScale(2.1 / ARTE.UNIDADE);
                     this.tweens.addCounter({ from: 0, to: 1, duration: 400, yoyo: true, repeat: -1,
                         onUpdate: (tw) => img.setFrame(Math.round(tw.getValue())) });
                 }
