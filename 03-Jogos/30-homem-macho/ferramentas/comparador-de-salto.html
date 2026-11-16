@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homem Macho — Comparador de game feel (P-15)</title>
+<style>
+  :root{
+    --ink:#0B0910; --bg:#15131F; --mass:#2A2433; --stone:#464052;
+    --bone:#E6DFD2; --threat:#D95555; --gold:#F2C66D; --text:#F8F7F2;
+    --a:#4FA3B8; --b:#7FD3C0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--ink);color:var(--text);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    overflow:hidden}
+  #stage{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
+  canvas{display:block;background:var(--bg);image-rendering:pixelated;
+    box-shadow:0 0 0 1px var(--mass);max-width:100%;max-height:100%}
+  .panel{position:absolute;background:rgba(21,19,31,.92);border:1px solid var(--stone);
+    border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.5;
+    backdrop-filter:blur(4px)}
+  #hud{top:12px;left:12px;min-width:290px}
+  #gates{top:12px;right:12px;min-width:250px}
+  #help{bottom:12px;left:12px;font-size:11px;color:#9A93A8;max-width:520px}
+  #verdict{bottom:12px;right:12px;max-width:430px;font-size:11.5px;line-height:1.6}
+  h1{font-size:13px;letter-spacing:.6px;margin-bottom:6px;color:var(--bone)}
+  .row{display:flex;justify-content:space-between;gap:10px}
+  .k{color:#9A93A8}
+  .v{font-variant-numeric:tabular-nums;font-weight:600}
+  .tabs{display:flex;gap:6px;margin-bottom:8px}
+  button{flex:1;background:var(--mass);color:var(--text);border:1px solid var(--stone);
+    border-radius:4px;padding:7px 8px;font:inherit;font-size:11.5px;font-weight:700;
+    cursor:pointer;transition:.12s}
+  button:hover{border-color:var(--bone)}
+  button.on{border-color:var(--gold);color:var(--gold);background:#332B2A}
+  .on-a{border-color:var(--a)!important;color:var(--a)!important}
+  .on-b{border-color:var(--b)!important;color:var(--b)!important}
+  .tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700}
+  .ok{background:#1F3A2E;color:#7FD3C0}
+  .no{background:#3A1F22;color:#D95555}
+  .pend{background:#2A2433;color:#9A93A8}
+  hr{border:0;border-top:1px solid var(--mass);margin:7px 0}
+  .big{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .warn{color:var(--threat)}
+  .good{color:var(--gold)}
+  .muted{color:#6E6780}
+  .legend{font-size:10.5px;color:#6E6780;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c" width="1280" height="720"></canvas>
+
+  <div id="hud" class="panel">
+    <h1>P-15 · COMPARADOR DE SALTO</h1>
+    <div class="tabs">
+      <button id="btnA">A · 480 / 1200</button>
+      <button id="btnB">B · 560 / 1100</button>
+    </div>
+    <div class="row"><span class="k">configuração</span><span class="v" id="vCfg">—</span></div>
+    <div class="row"><span class="k">impulso / gravidade</span><span class="v" id="vImp">—</span></div>
+    <hr>
+    <div class="row"><span class="k">altura do 1º salto</span><span class="v" id="vH1">—</span></div>
+    <div class="row"><span class="k">altura com salto duplo</span><span class="v" id="vH2">—</span></div>
+    <div class="row"><span class="k">alcance andando</span><span class="v" id="vR1">—</span></div>
+    <div class="row"><span class="k">alcance correndo</span><span class="v" id="vR2">—</span></div>
+    <hr>
+    <div class="row"><span class="k">último salto medido</span><span class="v" id="vMeasured">—</span></div>
+    <div class="row"><span class="k">estado</span><span class="v muted" id="vState">parado</span></div>
+    <div class="legend" id="coyoteBox">coyote 100 ms · buffer 100 ms · altura variável</div>
+  </div>
+
+  <div id="gates" class="panel">
+    <h1>OS GATES REAIS DO JOGO</h1>
+    <div class="row" style="margin-bottom:4px">
+      <span class="k">1 · degrau 1 tile (LVL-01)</span><span id="g1" class="tag pend">—</span></div>
+    <div class="row" style="margin-bottom:4px">
+      <span class="k">2 · muro 2 tiles (LVL-03 pilar)</span><span id="g2" class="tag pend">—</span></div>
+    <div class="row" style="margin-bottom:4px">
+      <span class="k">3 · gate 3 tiles (LVL-02)</span><span id="g3" class="tag pend">—</span></div>
+    <div class="row" style="margin-bottom:4px">
+      <span class="k">4 · vão 4 tiles (LVL-02 rota alta)</span><span id="g4" class="tag pend">—</span></div>
+    <div class="row" style="margin-bottom:4px">
+      <span class="k">5 · espinhos 1×2 tiles</span><span id="g5" class="tag pend">—</span></div>
+    <hr>
+    <div class="row"><span class="k">gate 3 com 1 salto</span><span class="v" id="vG3s">—</span></div>
+    <div class="row"><span class="k">gate 3 com salto duplo</span><span class="v" id="vG3d">—</span></div>
+    <div class="legend">R para zerar as marcas · Shift corre</div>
+  </div>
+
+  <div id="help" class="panel">
+    <b>A / D</b> ou <b>← →</b> mover · <b>Espaço</b> pular — <b>segure</b> para altura máxima (soltar corta o salto) · <b>Shift</b> correr ·
+    <b>1 / 2</b> trocar config · <b>R</b> zerar
+  </div>
+
+  <div id="verdict" class="panel"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+// ─────────────────────────────────────────────────────────────
+// CONSTANTES — idênticas ao GDD §2.11 e ao tuning.ts proposto
+// ─────────────────────────────────────────────────────────────
+const T = 64;                       // tile
+const SPEED = 220;                  // px/s
+const RUN_MULT = 1.4;
+const COYOTE_MS = 100;
+const BUFFER_MS = 100;
+const JUMP_CUT = 0.7;               // altura variável: soltar corta para 0,7× a velocidade → salto mínimo ≈ 49%
+
+const CONFIGS = {
+  A: { id:'A', impulse:480, gravity:1200, cor:'#4FA3B8', nome:'A · 480 / 1200' },
+  B: { id:'B', impulse:560, gravity:1100, cor:'#7FD3C0', nome:'B · 560 / 1100' }
+};
+
+const GROUND = 640;                 // topo do chão
+const WORLD_W = 2300;
+const VIEW_W = 1280, VIEW_H = 720;
+
+// ─────────────────────────────────────────────────────────────
+// MUNDO — os mesmos obstáculos dos níveis documentados
+// ─────────────────────────────────────────────────────────────
+const solids = [];
+const S = (x, y, w, h, kind) => solids.push({x, y, w, h, kind});
+
+// chão contínuo, exceto o vão 4
+S(0,   GROUND, 1300, 80, 'ground');
+S(1556, GROUND, WORLD_W - 1556, 80, 'ground');
+
+// 1 · degrau de 1 tile — LVL-01
+S(320, GROUND - T*1, T*2, T*1, 'step1');
+// 2 · muro de 2 tiles — pilar de LVL-03
+S(600, GROUND - T*2, T*2, T*2, 'step2');
+// 3 · plataforma a 3 tiles — o gate de LVL-02
+S(900, GROUND - T*3, T*3, T*3, 'gate3');
+
+// 5 · espinhos: 1 tile de altura × 2 tiles de largura
+const spikes = { x:1700, y:GROUND - T, w:T*2, h:T };
+
+// ─────────────────────────────────────────────────────────────
+// JOGADOR
+// ─────────────────────────────────────────────────────────────
+const PW = 96, PH = 128;
+const player = { x:60, y:GROUND - PH, vx:0, vy:0, w:PW, h:PH,
+                 grounded:true, jumpsUsed:0, face:1 };
+let cfg = CONFIGS.B;
+let keys = {};
+let lastGroundedAt = 0, jumpPressedAt = -1e9;
+let takeoffY = 0, takeoffX = 0, measuring = false, maxRise = 0;
+let measured = { h:0, d:0 };
+let hits = 0;
+
+const marks = { g1:null, g2:null, g3:null, g3s:null, g3d:null, g4:null, g5:null };
+let touchedSpike = false;
+
+function resetAll(){
+  player.x = 60; player.y = GROUND - PH; player.vx = 0; player.vy = 0;
+  player.grounded = true; player.jumpsUsed = 0;
+  measuring = false; maxRise = 0; hits = 0; touchedSpike = false;
+  for (const k in marks) marks[k] = null;
+  updateHUD();
+}
+
+// ─────────────────────────────────────────────────────────────
+// FÍSICA — passo fixo, igual ao que o jogo faria (PAT-C-08)
+// ─────────────────────────────────────────────────────────────
+function step(dt, now){
+  const dir = (keys['ArrowLeft']||keys['a']||keys['A'] ? -1 : 0) +
+              (keys['ArrowRight']||keys['d']||keys['D'] ? 1 : 0);
+  const running = !!(keys['Shift']);
+  const targetVx = dir * SPEED * (running ? RUN_MULT : 1);
+
+  // aceleração instantânea no chão, mais inércia no ar
+  const accel = player.grounded ? 3000 : 1400;
+  const dv = targetVx - player.vx;
+  const maxDv = accel * dt;
+  player.vx += Math.max(-maxDv, Math.min(maxDv, dv));
+  if (dir === 0 && player.grounded) player.vx *= 0.75;
+  if (dir !== 0) player.face = dir;
+
+  // gravidade
+  player.vy += cfg.gravity * dt;
+
+  // altura variável do salto
+  if (!keys[' '] && player.vy < -cfg.impulse * JUMP_CUT) {
+    player.vy = -cfg.impulse * JUMP_CUT;
+  }
+
+  // movimento + colisão
+  moveX(player.vx * dt);
+  const wasGrounded = player.grounded;
+  player.grounded = false;
+  moveY(player.vy * dt);
+  if (player.grounded) {
+    lastGroundedAt = now;
+    if (!wasGrounded) onLand();
+    player.jumpsUsed = 0;
+  }
+
+  // ── salto ─────────────────────────────────────────────
+  const coyoteActive = (now - lastGroundedAt) <= COYOTE_MS;
+  const buffered = (now - jumpPressedAt) <= BUFFER_MS;
+
+  if (buffered) {
+    if (player.grounded || coyoteActive) {
+      if (player.jumpsUsed === 0) doJump(now, false);
+    } else if (player.jumpsUsed === 1) {
+      doJump(now, true);
+    }
+  }
+
+  // ── espinhos ──────────────────────────────────────────
+  if (!touchedSpike && aabb(player, spikes)) {
+    touchedSpike = true; hits++;
+    marks.g5 = 'hit';
+    updateHUD();
+  }
+
+  // ── quedas no vão ─────────────────────────────────────
+  if (player.y > VIEW_H + 200) {
+    player.x = 60; player.y = GROUND - PH; player.vx = 0; player.vy = 0;
+    measuring = false; player.jumpsUsed = 0;
+  }
+
+  // ── medição ───────────────────────────────────────────
+  if (measuring) {
+    const rise = takeoffY - player.y;
+    if (rise > maxRise) maxRise = rise;
+  }
+}
+
+function doJump(now, isDouble){
+  player.vy = -cfg.impulse;
+  player.grounded = false;
+  player.jumpsUsed = isDouble ? 2 : 1;
+  jumpPressedAt = -1e9;
+  if (!measuring) { measuring = true; takeoffY = player.y; takeoffX = player.x; maxRise = 0; }
+}
+
+function onLand(){
+  if (measuring) {
+    measured = { h: Math.round(maxRise), d: Math.round(player.x - takeoffX) };
+    measuring = false; maxRise = 0;
+    updateHUD();
+  }
+  // marcas de gate
+  const feet = player.y + player.h;
+  const cx = player.x + player.w/2;
+  const onTop = (b, tol=4) =>
+    cx > b.x - 20 && cx < b.x + b.w + 20 && Math.abs(feet - b.y) < tol;
+
+  for (const b of solids) {
+    if (b.kind === 'step1' && onTop(b)) marks.g1 = 'ok';
+    if (b.kind === 'step2' && onTop(b)) marks.g2 = 'ok';
+    if (b.kind === 'gate3' && onTop(b)) { marks.g3 = 'ok'; }
+  }
+  if (player.x > 1560 && player.x < 1620) marks.g4 = 'ok';
+  updateHUD();
+}
+
+function aabb(a, b){
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function moveX(dx){
+  player.x += dx;
+  for (const b of solids) {
+    if (!aabb(player, b)) continue;
+    if (dx > 0) player.x = b.x - player.w;
+    else if (dx < 0) player.x = b.x + b.w;
+    player.vx = 0;
+  }
+  player.x = Math.max(0, Math.min(WORLD_W - player.w, player.x));
+}
+
+function moveY(dy){
+  player.y += dy;
+  for (const b of solids) {
+    if (!aabb(player, b)) continue;
+    if (dy > 0) { player.y = b.y - player.h; player.vy = 0; player.grounded = true; }
+    else if (dy < 0) { player.y = b.y + b.h; player.vy = 0; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// TEORIA — fechado, para comparar com a medição
+// ─────────────────────────────────────────────────────────────
+const theory = c => ({
+  h1: c.impulse*c.impulse / (2*c.gravity),
+  h2: 2 * c.impulse*c.impulse / (2*c.gravity),
+  r1: SPEED * (2*c.impulse / c.gravity),
+  r2: SPEED * (2*c.impulse / c.gravity) * 1.4
+});
+
+// Integração numérica na taxa real do Phaser (60 Hz) — é isso que o jogador sente.
+// A forma fechada superestima a altura porque a integração de Euler perde alguns px.
+function simJump(c, double, hz = 60){
+  const dt = 1/hz;
+  let y = 0, vy = -c.impulse, t = 0, max = 0, apex = false;
+  while (t < 5) {
+    const pv = vy;
+    vy += c.gravity * dt;
+    y  += vy * dt;
+    t  += dt;
+    if (-y > max) max = -y;
+    if (double && !apex && pv < 0 && vy >= 0) { vy = -c.impulse; apex = true; }
+    if (y >= 0) break;
+  }
+  return max;
+}
+const effective = c => ({ h1: simJump(c, false), h2: simJump(c, true) });
+
+// ─────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+
+function camX(){
+  return Math.max(0, Math.min(WORLD_W - VIEW_W, player.x + player.w/2 - VIEW_W/2));
+}
+
+function draw(){
+  const cx = camX();
+  ctx.fillStyle = '#15131F';
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+  ctx.save();
+  ctx.translate(-cx, 0);
+
+  // grade de tiles
+  ctx.strokeStyle = '#1D1A29'; ctx.lineWidth = 1;
+  for (let x = Math.floor(cx/T)*T; x < cx + VIEW_W; x += T) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, VIEW_H); ctx.stroke();
+  }
+  for (let y = 0; y < VIEW_H; y += T) {
+    ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(cx + VIEW_W, y); ctx.stroke();
+  }
+
+  // sólidos
+  for (const b of solids) {
+    ctx.fillStyle = b.kind === 'gate3' ? '#3A3348' : '#2A2433';
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.strokeStyle = b.kind === 'gate3' ? cfg.cor : '#464052';
+    ctx.lineWidth = b.kind === 'gate3' ? 2 : 1;
+    ctx.strokeRect(b.x + .5, b.y + .5, b.w - 1, b.h - 1);
+  }
+
+  // espinhos
+  ctx.fillStyle = '#D95555';
+  const n = 8, sw = spikes.w / n;
+  for (let i = 0; i < n; i++) {
+    ctx.beginPath();
+    ctx.moveTo(spikes.x + i*sw, spikes.y + spikes.h);
+    ctx.lineTo(spikes.x + i*sw + sw/2, spikes.y + 6);
+    ctx.lineTo(spikes.x + (i+1)*sw, spikes.y + spikes.h);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // rótulos dos gates
+  ctx.font = '600 13px ui-sans-serif,system-ui,sans-serif';
+  ctx.fillStyle = '#6E6780';
+  const label = (x, y, txt) => ctx.fillText(txt, x, y);
+  label(320, GROUND - T*1 - 12, '1 · degrau 1 tile');
+  label(600, GROUND - T*2 - 12, '2 · muro 2 tiles');
+  label(900, GROUND - T*3 - 12, '3 · GATE 3 tiles (HAB-01)');
+  label(1300, GROUND + 24, '4 · vão 4 tiles');
+  label(1700, GROUND - T - 12, '5 · espinhos');
+
+  // linha teórica da altura do salto
+  const th = theory(cfg);
+  const groundY = GROUND - PH;
+  ctx.setLineDash([6, 6]);
+  ctx.strokeStyle = 'rgba(242,198,109,.35)';
+  ctx.beginPath();
+  ctx.moveTo(cx + 10, groundY - th.h1); ctx.lineTo(cx + VIEW_W - 10, groundY - th.h1);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(127,211,192,.35)';
+  ctx.beginPath();
+  ctx.moveTo(cx + 10, groundY - th.h2); ctx.lineTo(cx + VIEW_W - 10, groundY - th.h2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = '600 11px ui-sans-serif,system-ui,sans-serif';
+  ctx.fillStyle = 'rgba(242,198,109,.6)';
+  ctx.fillText('altura 1 salto: ' + Math.round(th.h1) + ' px', cx + 16, groundY - th.h1 - 6);
+  ctx.fillStyle = 'rgba(127,211,192,.6)';
+  ctx.fillText('altura 2 saltos: ' + Math.round(th.h2) + ' px', cx + 16, groundY - th.h2 - 6);
+
+  // jogador
+  ctx.fillStyle = cfg.cor;
+  ctx.globalAlpha = .95;
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = '#0B0910'; ctx.lineWidth = 3;
+  ctx.strokeRect(player.x + 1.5, player.y + 1.5, player.w - 3, player.h - 3);
+  // olhos
+  ctx.fillStyle = '#0B0910';
+  const ex = player.x + (player.face > 0 ? player.w - 34 : 20);
+  ctx.fillRect(ex, player.y + 26, 14, 10);
+  ctx.fillRect(ex + (player.face > 0 ? -24 : 24), player.y + 26, 14, 10);
+
+  // rastro do salto
+  if (measuring) {
+    ctx.strokeStyle = 'rgba(242,198,109,.5)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(takeoffX + player.w/2, takeoffY + player.h);
+    ctx.lineTo(player.x + player.w/2, player.y + player.h);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  // imagem de espinhos atingidos
+  if (touchedSpike) {
+    ctx.fillStyle = 'rgba(217,85,85,.12)';
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// HUD
+// ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function setTag(id, v){
+  const el = $(id);
+  if (!el) return;
+  el.className = 'tag ' + (v === 'ok' ? 'ok' : v === 'hit' ? 'no' : 'pend');
+  el.textContent = v === 'ok' ? 'PASSOU' : v === 'hit' ? 'ATINGIDO' : '—';
+}
+
+function updateHUD(){
+  const th = theory(cfg);
+  $('vCfg').textContent = cfg.nome;
+  $('vImp').textContent = cfg.impulse + ' / ' + cfg.gravity;
+  const ef = effective(cfg);
+  $('vH1').textContent = Math.round(th.h1) + ' px teórico · ' + Math.round(ef.h1) + ' px a 60 Hz';
+  $('vH2').textContent = Math.round(th.h2) + ' px teórico · ' + Math.round(ef.h2) + ' px a 60 Hz';
+  $('vR1').textContent = Math.round(th.r1) + ' px (' + (th.r1/T).toFixed(1) + ' tiles)';
+  $('vR2').textContent = Math.round(th.r2) + ' px (' + (th.r2/T).toFixed(1) + ' tiles)';
+  $('vMeasured').textContent = measured.h
+    ? measured.h + ' px · ' + measured.d + ' px de vão'
+    : '—';
+
+  ['g1','g2','g3','g4','g5'].forEach(id => setTag(id, marks[id]));
+
+  // gate 3: alcança com 1 salto? com 2?
+  const gate3 = T*3;
+  const h1ok = ef.h1 >= gate3, h2ok = ef.h2 >= gate3;
+  $('vG3s').innerHTML = h1ok
+    ? '<span class="warn">SIM — gate inválido</span>'
+    : '<span class="good">não</span>';
+  $('vG3d').innerHTML = h2ok
+    ? '<span class="good">sim, margem ' + Math.round(ef.h2 - gate3) + ' px</span>'
+    : '<span class="warn">NÃO — faltam ' + Math.round(gate3 - ef.h2) + ' px</span>';
+
+  $('btnA').className = cfg.id === 'A' ? 'on on-a' : '';
+  $('btnB').className = cfg.id === 'B' ? 'on on-b' : '';
+
+  // veredito dinâmico
+  const mb = Math.round(ef.h2 - gate3);
+  $('verdict').innerHTML = cfg.id === 'B'
+    ? `<b class="good">CONFIG B — gate de 3 tiles confiável</b><br>
+       1 salto NÃO alcança (<b>${Math.round(ef.h1)} px</b> &lt; 192 px). Salto duplo alcança com
+       <b>${mb} px de folga</b>.<br>
+       <span class="muted">Ledges de 1 e 2 tiles continuam subíveis livremente —
+       o designer não briga com a geometria.</span>`
+    : `<b class="warn">CONFIG A — o gate de 3 tiles é INALCANÇÁVEL</b><br>
+       Salto duplo chega a <b>${Math.round(ef.h2)} px</b> a 60 Hz para um alvo de 192 px:
+       <b>faltam ${Math.abs(mb)} px</b>. Tente subir no gate 3 — não sobe.<br>
+       <span class="muted">Em A o gate teria de ser de <b>2 tiles</b> (128 px) — e então a config B
+       o pularia com um pulo simples (140 &gt; 128), tornando o layout dependente de configuração.</span>`;
+}
+
+
+// ─────────────────────────────────────────────────────────────
+// ENTRADA
+// ─────────────────────────────────────────────────────────────
+addEventListener('keydown', e => {
+  if ([' ','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab'].includes(e.key)) e.preventDefault();
+  keys[e.key] = true;
+  if (e.key === ' ' && !e.repeat) jumpPressedAt = performance.now();
+  if (e.key === '1') setCfg('A');
+  if (e.key === '2') setCfg('B');
+  if (e.key === 'r' || e.key === 'R') resetAll();
+  if (e.key === 'Shift') keys['Shift'] = true;
+});
+addEventListener('keyup', e => {
+  keys[e.key] = false;
+  if (e.key === 'Shift') keys['Shift'] = false;
+});
+addEventListener('blur', () => { keys = {}; });
+
+function setCfg(id){
+  cfg = CONFIGS[id];
+  for (const k in marks) marks[k] = null;
+  touchedSpike = false;
+  measured = { h:0, d:0 };
+  measuring = false;
+  player.x = 60; player.y = GROUND - PH; player.vx = 0; player.vy = 0;
+  player.grounded = true; player.jumpsUsed = 0;
+  updateHUD();
+}
+$('btnA').onclick = () => setCfg('A');
+$('btnB').onclick = () => setCfg('B');
+
+// ─────────────────────────────────────────────────────────────
+// LOOP — passo fixo de 1/120 s
+// ─────────────────────────────────────────────────────────────
+let acc = 0, last = performance.now();
+const FIXED = 1/120;
+
+function loop(now){
+  let frame = Math.min((now - last) / 1000, 0.1);
+  last = now;
+  acc += frame;
+  while (acc >= FIXED) { step(FIXED, now); acc -= FIXED; }
+
+  // estado no HUD
+  const st = player.grounded ? 'no chão'
+    : (now - lastGroundedAt <= COYOTE_MS && player.jumpsUsed === 0) ? 'coyote ativo'
+    : player.jumpsUsed === 1 ? 'no ar · duplo disponível'
+    : 'no ar · sem salto';
+  const el = $('vState');
+  if (el) el.textContent = st;
+  const cb = $('coyoteBox');
+  if (cb) cb.style.color = (now - lastGroundedAt <= COYOTE_MS) ? 'var(--gold)' : '#6E6780';
+
+  draw();
+  requestAnimationFrame(loop);
+}
+
+updateHUD();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
