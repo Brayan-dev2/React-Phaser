@@ -12,7 +12,9 @@ Desenho animado 2D old school com fantasia sombria: ruínas, silhuetas de arquit
 
 ## 5.3 Especificações técnicas: resolução base, tamanho de tiles/sprites, FPS de animação, formato (PNG/WebP), atlas
 
-[SUPOSIÇÃO] Resolução lógica 1280 × 720 px, `Scale.FIT` e `CENTER_BOTH`; tiles 64 × 64 px; personagem em caixa de até 96 × 128 px; animação 8–12 frames/s. PNG para transparência, WebP quando compatível; atlas até 2048 × 2048 px como alvo mobile, sujeito a teste de GPU. Não pressupor pixel art.
+[SUPOSIÇÃO] Resolução lógica 1280 × 704 px (11 × 64), `Scale.FIT` e `CENTER_BOTH`; tiles 64 × 64 px; personagem em caixa de 96 × 128 px; animação 8–12 frames/s. PNG para transparência; atlas até 2048 × 2048 px como alvo mobile.
+
+> **As medidas exatas — célula, área útil, hurtbox, frames por ação e tamanho de folha de cada peça — estão em [`14-arte-tilesets-e-spritesheets.md`](14-arte-tilesets-e-spritesheets.md)** e são executáveis (`src/game/data/arte.json`, `npm run arte`). Esta secção é a intenção; o §14 é o contrato.
 
 ## 5.4 Lista de assets visuais (tabela com ID, nome, dimensões, frames, prioridade, status, origem/licença)
 

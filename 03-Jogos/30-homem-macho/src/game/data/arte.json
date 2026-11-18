@@ -1,0 +1,1449 @@
+{
+  "versao": 1,
+  "nota": "Um só sítio para as medidas da arte. Lido por src/game/data/arte.ts, pelo teste e por npm run arte. Nenhum número de arte fora daqui.",
+  "base": {
+    "tile": 64,
+    "view": {
+      "w": 1280,
+      "h": 704
+    },
+    "salas": {
+      "linhas": 11,
+      "largurasTiles": [
+        20,
+        30,
+        40
+      ]
+    },
+    "atlasMax": 2048,
+    "fpsMin": 8,
+    "fpsMax": 12,
+    "escalaMestre": 1
+  },
+  "pastas": {
+    "imagens": "public/assets/images",
+    "atlases": "public/assets/atlases",
+    "tilemaps": "public/assets/tilemaps"
+  },
+  "pecas": [
+    {
+      "id": "AST-001",
+      "chave": "player",
+      "ficheiro": "spr_player.png",
+      "tipo": "spritesheet",
+      "entidade": "ENT-001",
+      "onde": "Herói (o Homem Macho criado no menu)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 112
+      },
+      "hurtbox": {
+        "w": 36,
+        "h": 110
+      },
+      "ancora": "base-centro",
+      "colunas": 8,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "corrida",
+          "frames": 8,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "salto",
+          "frames": 2,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "queda",
+          "frames": 2,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "ataque",
+          "frames": 5,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "disparo",
+          "frames": 3,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "dano",
+          "frames": 2,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "morte",
+          "frames": 6,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-002",
+      "chave": "sentinel",
+      "ficheiro": "spr_sentinel.png",
+      "tipo": "spritesheet",
+      "entidade": "ENT-002",
+      "onde": "Sentinela (LVL-01)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 48,
+        "h": 80
+      },
+      "hurtbox": {
+        "w": 44,
+        "h": 78
+      },
+      "ancora": "base-centro",
+      "colunas": 8,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "ronda",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "telegraph",
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "ataque",
+          "frames": 4,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "dano",
+          "frames": 2,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "morte",
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-003",
+      "chave": "boss",
+      "ficheiro": "spr_ent003.png",
+      "tipo": "spritesheet",
+      "entidade": "ENT-003",
+      "onde": "Chefe de LVL-03",
+      "frame": {
+        "w": 192,
+        "h": 192
+      },
+      "util": {
+        "w": 192,
+        "h": 176
+      },
+      "hurtbox": {
+        "w": 160,
+        "h": 176
+      },
+      "ancora": "base-centro",
+      "colunas": 6,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "andar",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "telegraph",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "ataque",
+          "frames": 6,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "dano",
+          "frames": 2,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "morte",
+          "frames": 8,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-003b",
+      "chave": "alferes",
+      "ficheiro": "spr_ent004.png",
+      "tipo": "spritesheet",
+      "entidade": "ENT-004",
+      "onde": "Chefe de LVL-04",
+      "frame": {
+        "w": 192,
+        "h": 192
+      },
+      "util": {
+        "w": 192,
+        "h": 176
+      },
+      "hurtbox": {
+        "w": 128,
+        "h": 160
+      },
+      "ancora": "base-centro",
+      "colunas": 6,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "andar",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "telegraph",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "ataque",
+          "frames": 6,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "dano",
+          "frames": 2,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "morte",
+          "frames": 8,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-003c",
+      "chave": "forjador",
+      "ficheiro": "spr_ent005.png",
+      "tipo": "spritesheet",
+      "entidade": "ENT-005",
+      "onde": "Chefe de LVL-12 (O Forjador)",
+      "frame": {
+        "w": 192,
+        "h": 192
+      },
+      "util": {
+        "w": 192,
+        "h": 176
+      },
+      "hurtbox": {
+        "w": 128,
+        "h": 160
+      },
+      "ancora": "base-centro",
+      "colunas": 6,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "andar",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "telegraph",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "ataque",
+          "frames": 6,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "dano",
+          "frames": 2,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "morte",
+          "frames": 8,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-003d",
+      "chave": "comandante",
+      "ficheiro": "spr_ent006.png",
+      "tipo": "spritesheet",
+      "entidade": "ENT-006",
+      "onde": "Chefe de LVL-15",
+      "frame": {
+        "w": 192,
+        "h": 192
+      },
+      "util": {
+        "w": 192,
+        "h": 176
+      },
+      "hurtbox": {
+        "w": 128,
+        "h": 160
+      },
+      "ancora": "base-centro",
+      "colunas": 6,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "andar",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "telegraph",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "ataque",
+          "frames": 6,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "dano",
+          "frames": 2,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "morte",
+          "frames": 8,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-003e",
+      "chave": "guardiao",
+      "ficheiro": "spr_ent007.png",
+      "tipo": "spritesheet",
+      "entidade": "ENT-007",
+      "onde": "Chefe de LVL-14 (O Guardião Duplo — dois corpos)",
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "util": {
+        "w": 128,
+        "h": 112
+      },
+      "hurtbox": {
+        "w": 96,
+        "h": 112
+      },
+      "ancora": "base-centro",
+      "colunas": 6,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "andar",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "telegraph",
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        {
+          "nome": "ataque",
+          "frames": 6,
+          "fps": 12,
+          "loop": true
+        },
+        {
+          "nome": "dano",
+          "frames": 2,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "morte",
+          "frames": 6,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-003f",
+      "chave": "plantonista",
+      "ficheiro": "spr_ent008.png",
+      "tipo": "spritesheet",
+      "entidade": "ENT-008",
+      "onde": "Chefe de LVL-16 (O Plantonista — não tem vida)",
+      "frame": {
+        "w": 128,
+        "h": 192
+      },
+      "util": {
+        "w": 128,
+        "h": 192
+      },
+      "hurtbox": {
+        "w": 96,
+        "h": 176
+      },
+      "ancora": "base-centro",
+      "colunas": 5,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "postura",
+          "frames": 5,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "assinar",
+          "frames": 5,
+          "fps": 8,
+          "loop": true
+        },
+        {
+          "nome": "morte",
+          "frames": 6,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-009",
+      "chave": "itens",
+      "ficheiro": "spr_itens.png",
+      "tipo": "itens",
+      "entidade": "ITM-001…ITM-011",
+      "onde": "Itens no chão (desenhados a 1:1, sem escala)",
+      "frame": {
+        "w": 32,
+        "h": 34
+      },
+      "util": {
+        "w": 32,
+        "h": 34
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 6,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "itens",
+          "frames": 11,
+          "fps": 8,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-010",
+      "chave": "spark",
+      "ficheiro": "spr_spark.png",
+      "tipo": "efeito",
+      "entidade": "ATK (disparo)",
+      "onde": "Projétil do disparo (pool de 10)",
+      "frame": {
+        "w": 14,
+        "h": 14
+      },
+      "util": {
+        "w": 14,
+        "h": 14
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 4,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "girar",
+          "frames": 4,
+          "fps": 12,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-004",
+      "chave": "tm_ruinas",
+      "ficheiro": "tm_ruinas.png",
+      "tipo": "tileset",
+      "entidade": "CEN-001…",
+      "onde": "Tiles de ruínas (chão, parede, canto, plataforma, colisão)",
+      "frame": {
+        "w": 64,
+        "h": 64
+      },
+      "util": {
+        "w": 64,
+        "h": 64
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 8,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "tile",
+          "frames": 24,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-005",
+      "chave": "tm_armadilhas",
+      "ficheiro": "tm_armadilhas.png",
+      "tipo": "tileset",
+      "entidade": "CEN-001, CEN-002",
+      "onde": "Espetos (estático e cíclico) e portas",
+      "frame": {
+        "w": 64,
+        "h": 64
+      },
+      "util": {
+        "w": 64,
+        "h": 64
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 8,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "tile",
+          "frames": 8,
+          "fps": 8,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-007a",
+      "chave": "bg_abertura_1",
+      "ficheiro": "bg_abertura_1.png",
+      "tipo": "fundo",
+      "entidade": null,
+      "onde": "Abertura · camada de trás (parallax lento)",
+      "frame": {
+        "w": 1280,
+        "h": 720
+      },
+      "util": {
+        "w": 1280,
+        "h": 720
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-007b",
+      "chave": "bg_abertura_2",
+      "ficheiro": "bg_abertura_2.png",
+      "tipo": "fundo",
+      "entidade": null,
+      "onde": "Abertura · camada do meio",
+      "frame": {
+        "w": 1280,
+        "h": 720
+      },
+      "util": {
+        "w": 1280,
+        "h": 720
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-007c",
+      "chave": "bg_abertura_3",
+      "ficheiro": "bg_abertura_3.png",
+      "tipo": "fundo",
+      "entidade": null,
+      "onde": "Abertura · camada da frente (parallax rápido)",
+      "frame": {
+        "w": 1280,
+        "h": 720
+      },
+      "util": {
+        "w": 1280,
+        "h": 720
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-008",
+      "chave": "bg_setor",
+      "ficheiro": "bg_setor.png",
+      "tipo": "fundo",
+      "entidade": null,
+      "onde": "Fundo de setor (3 camadas empilhadas, 11×11 tiles)",
+      "frame": {
+        "w": 1280,
+        "h": 704
+      },
+      "util": {
+        "w": 1280,
+        "h": 704
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-011",
+      "chave": "bg_intro_veu",
+      "ficheiro": "bg_intro_veu.png",
+      "tipo": "fundo",
+      "entidade": "UI-13",
+      "onde": "Introdução · quadro 1 (veu) — área de 716×640",
+      "frame": {
+        "w": 704,
+        "h": 640
+      },
+      "util": {
+        "w": 704,
+        "h": 640
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-011b",
+      "chave": "bg_intro_queda",
+      "ficheiro": "bg_intro_queda.png",
+      "tipo": "fundo",
+      "entidade": "UI-13",
+      "onde": "Introdução · quadro 2 (queda) — área de 716×640",
+      "frame": {
+        "w": 704,
+        "h": 640
+      },
+      "util": {
+        "w": 704,
+        "h": 640
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-011c",
+      "chave": "bg_intro_trevas",
+      "ficheiro": "bg_intro_trevas.png",
+      "tipo": "fundo",
+      "entidade": "UI-13",
+      "onde": "Introdução · quadro 3 (trevas) — área de 716×640",
+      "frame": {
+        "w": 704,
+        "h": 640
+      },
+      "util": {
+        "w": 704,
+        "h": 640
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-011d",
+      "chave": "bg_intro_soldados",
+      "ficheiro": "bg_intro_soldados.png",
+      "tipo": "fundo",
+      "entidade": "UI-13",
+      "onde": "Introdução · quadro 4 (soldados) — área de 716×640",
+      "frame": {
+        "w": 704,
+        "h": 640
+      },
+      "util": {
+        "w": 704,
+        "h": 640
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-011e",
+      "chave": "bg_intro_comeco",
+      "ficheiro": "bg_intro_comeco.png",
+      "tipo": "fundo",
+      "entidade": "UI-13",
+      "onde": "Introdução · quadro 5 (comeco) — área de 716×640",
+      "frame": {
+        "w": 704,
+        "h": 640
+      },
+      "util": {
+        "w": 704,
+        "h": 640
+      },
+      "hurtbox": null,
+      "ancora": "centro",
+      "colunas": 1,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "parado",
+          "frames": 1,
+          "fps": 1,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "AST-012",
+      "chave": "spr_pers_corpos",
+      "ficheiro": "spr_pers_corpos.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · os 5 corpos (magro → gordo), mesma célula",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 5,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 5,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-013",
+      "chave": "spr_pers_cabelos",
+      "ficheiro": "spr_pers_cabelos.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · os 7 penteados (cabeça ampliada na célula)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 7,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 7,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-014",
+      "chave": "spr_pers_rostos",
+      "ficheiro": "spr_pers_rostos.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · as 4 formas de rosto",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 4,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 4,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-015",
+      "chave": "spr_pers_expressoes",
+      "ficheiro": "spr_pers_expressoes.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · as 5 expressões (olhos, sobrancelha, boca)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 5,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 5,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-016",
+      "chave": "spr_pers_marcas",
+      "ficheiro": "spr_pers_marcas.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · as 6 marcas (nenhuma, cicatrizes, tatuagens, pintura)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 6,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 6,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-017",
+      "chave": "spr_pers_dentes",
+      "ficheiro": "spr_pers_dentes.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · presas normais / de vampiro (boca ampliada)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 2,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 2,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-018",
+      "chave": "spr_pers_peles",
+      "ficheiro": "spr_pers_peles.png",
+      "tipo": "paleta",
+      "entidade": "UI-12",
+      "onde": "Paleta · os 7 tons de pele (amostra base + sombra)",
+      "frame": {
+        "w": 32,
+        "h": 32
+      },
+      "util": {
+        "w": 32,
+        "h": 32
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 7,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "cores",
+          "frames": 7,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-019",
+      "chave": "spr_pers_cores_cabelo",
+      "ficheiro": "spr_pers_cores_cabelo.png",
+      "tipo": "paleta",
+      "entidade": "UI-12",
+      "onde": "Paleta · as 7 cores de cabelo (amostra base + sombra)",
+      "frame": {
+        "w": 32,
+        "h": 32
+      },
+      "util": {
+        "w": 32,
+        "h": 32
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 7,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "cores",
+          "frames": 7,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-020",
+      "chave": "spr_pers_exemplos",
+      "ficheiro": "spr_pers_exemplos.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Exemplos · padrão · MACHO · ALUCARD (herói completo, para conferir)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 3,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 3,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-021",
+      "chave": "spr_pers_torsos",
+      "ficheiro": "spr_pers_torsos.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · os 5 troncos com pescoço (ombro, tronco e cintura)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 5,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 5,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-022",
+      "chave": "spr_pers_bracos",
+      "ficheiro": "spr_pers_bracos.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · os 5 pares de braços, sem as mãos",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 5,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 5,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-023",
+      "chave": "spr_pers_maos",
+      "ficheiro": "spr_pers_maos.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · os 5 pares de mãos (mesma variante do corpo)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 5,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 5,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-024",
+      "chave": "spr_pers_pernas",
+      "ficheiro": "spr_pers_pernas.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · os 5 pares de pernas, sem os pés",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 5,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 5,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-025",
+      "chave": "spr_pers_pes",
+      "ficheiro": "spr_pers_pes.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · os 5 pares de pés (base-centro)",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 5,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 5,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    },
+    {
+      "id": "AST-026",
+      "chave": "spr_pers_marcas_corpo",
+      "ficheiro": "spr_pers_marcas_corpo.png",
+      "tipo": "customizacao",
+      "entidade": "UI-12",
+      "onde": "Personalização · nenhuma, tatuagem no braço e tatuagem no peito",
+      "frame": {
+        "w": 96,
+        "h": 128
+      },
+      "util": {
+        "w": 96,
+        "h": 128
+      },
+      "hurtbox": null,
+      "ancora": "base-centro",
+      "colunas": 3,
+      "estado": "pendente",
+      "acoes": [
+        {
+          "nome": "variantes",
+          "frames": 3,
+          "fps": 1,
+          "loop": false
+        }
+      ]
+    }
+  ],
+  "customizacao": {
+    "nota": "Os ids são os de src/services/character.ts (o teste confere). As cores são as dos tons de lá.",
+    "corpos": [
+      {
+        "id": "magro",
+        "ombro": 0.74,
+        "tronco": 0.76,
+        "cintura": 0.62,
+        "altura": 1.02
+      },
+      {
+        "id": "atletico",
+        "ombro": 0.94,
+        "tronco": 0.9,
+        "cintura": 0.74,
+        "altura": 1.0
+      },
+      {
+        "id": "forte",
+        "ombro": 1.08,
+        "tronco": 1.02,
+        "cintura": 0.84,
+        "altura": 0.99
+      },
+      {
+        "id": "maromba",
+        "ombro": 1.24,
+        "tronco": 1.12,
+        "cintura": 0.78,
+        "altura": 0.98
+      },
+      {
+        "id": "gordo",
+        "ombro": 1.04,
+        "tronco": 1.18,
+        "cintura": 1.16,
+        "altura": 0.99
+      }
+    ],
+    "cabelos": [
+      "curto",
+      "moicano",
+      "coque",
+      "longo",
+      "raspado",
+      "franja",
+      "cacheado"
+    ],
+    "rostos": [
+      "quadrado",
+      "oval",
+      "angular",
+      "redondo"
+    ],
+    "expressoes": [
+      "serio",
+      "furioso",
+      "sorriso",
+      "cansado",
+      "grito"
+    ],
+    "marcas": [
+      "nenhuma",
+      "cicatriz-olho",
+      "cicatriz-boca",
+      "tatuagem-braco",
+      "tatuagem-peito",
+      "pintura"
+    ],
+    "peles": [
+      {
+        "id": "clara",
+        "cor": "#E8C4A2",
+        "sombra": "#C99F7C"
+      },
+      {
+        "id": "palida",
+        "cor": "#EFE4D6",
+        "sombra": "#CDBFAE"
+      },
+      {
+        "id": "media",
+        "cor": "#D9A97E",
+        "sombra": "#B8865C"
+      },
+      {
+        "id": "morena",
+        "cor": "#B98154",
+        "sombra": "#96633C"
+      },
+      {
+        "id": "parda",
+        "cor": "#8E5C3A",
+        "sombra": "#6D4327"
+      },
+      {
+        "id": "escura",
+        "cor": "#5E3A26",
+        "sombra": "#452818"
+      },
+      {
+        "id": "retinta",
+        "cor": "#3B2418",
+        "sombra": "#29180F"
+      }
+    ],
+    "coresCabelo": [
+      {
+        "id": "preto",
+        "cor": "#15131C",
+        "sombra": "#0B0A0F"
+      },
+      {
+        "id": "castanho",
+        "cor": "#4A2E1C",
+        "sombra": "#331F13"
+      },
+      {
+        "id": "loiro",
+        "cor": "#C9A15A",
+        "sombra": "#A47C3C"
+      },
+      {
+        "id": "ruivo",
+        "cor": "#A24A22",
+        "sombra": "#7C3517"
+      },
+      {
+        "id": "grisalho",
+        "cor": "#8A8694",
+        "sombra": "#6A6676"
+      },
+      {
+        "id": "branco",
+        "cor": "#E2DED2",
+        "sombra": "#C2BEB2"
+      },
+      {
+        "id": "azul",
+        "cor": "#3C5C8E",
+        "sombra": "#2A4166"
+      }
+    ],
+    "dentes": [
+      "normais",
+      "vampiro"
+    ],
+    "marcasCorpo": [
+      "nenhuma",
+      "tatuagem-braco",
+      "tatuagem-peito"
+    ]
+  }
+}

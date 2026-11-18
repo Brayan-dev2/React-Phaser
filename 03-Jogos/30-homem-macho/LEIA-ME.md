@@ -41,7 +41,7 @@ Adicione ao índice existente:
 | Pasta | Arquivos | O que resolve |
 |---|---|---|
 | `docs/design-patterns/` | 8 documentos + 1 SVG + 1 prancha | Como o jogo é desenhado, ambientado e construído |
-| `docs/niveis/` | `LVL-01.md`–`LVL-03.md` (**MVP**) + `LVL-04.md`–`LVL-16.md` (`[PÓS]`) — **os 16 setores** | Layout sala por sala, grade, coordenadas, combate e conversão para Tiled |
+| `docs/niveis/` | `LVL-01.md`–`LVL-16.md` — **os 16 setores**, todos na campanha desde `DEC-047` | Layout sala por sala, grade, coordenadas, combate e conversão para Tiled |
 | `agents-ia/` | 9 agentes + 2 templates | Quem executa, com que escopo e com que guardrails |
 | `docs/decisoes/` | `P-15-tuning-de-movimento.md` | **Como** cada decisão de game feel foi medida e por que venceu |
 | `ferramentas/` | `comparador-de-salto.html` | Prova jogável do tuning: compare A e B com os gates reais do MVP |

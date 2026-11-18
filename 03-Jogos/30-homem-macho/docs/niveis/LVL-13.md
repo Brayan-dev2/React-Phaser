@@ -510,6 +510,10 @@ E o último marco do ato (**"A ORDEM FOI DADA. NÃO CONSTA O NOME."**) é a mesm
 | 5 | **Zero plataformas, zero vãos, zero armadilhas** | Quinto setor seguido sem plataforma; um abismo não tem onde pregar tábua | `PAT-LD-01` |
 | 6 | **A trava 13 → 14 exige habilidade + ambiente** | Primeira conjunção do jogo: o pano não sobe e a corrente não segura (§7) | `DEC-015`, `HAB-07`, `CEN-096` |
 | 7 | **O setor não tem tileset próprio de verdade** | `CEN-097` é gradiente e o resto é rocha. Um clímax de ato mais barato que LVL-07 (§1) | `AST-017`, orçamento |
+| 8 | **A coluna declarada vai ao teto (`topRow = 0`), a grade desenha 6 tiles** | Se a região parasse em `y=1`, o corpo subiria 3 tiles, sairia da coluna **antes** de o topo alcançar o alçapão e cairia no meio da subida — o erro que o handoff manda evitar (§6.4) | `CEN-096`, `DEC-015` |
+| 9 | **O alçapão da coluna manda antes da regra geral de `DEC-015`** | A regra geral é "sala seguinte"; a corrente A **volta**. Sem essa precedência, `changeRoom(roomIndex + 1)` levava a coluna A para L13-05 e o atalho deixava de existir (§4.4) | `DEC-015`, `PAT-LD-08` |
+| 10 | **A subida desliga a gravidade do corpo enquanto sopra** | `setVelocity` por frame é comido pelo passo da física e a subida sairia a ~120 px/s em vez de 140 — o mesmo motivo que fez o pano usar teto e não impulso (`DEC-026`) | `CEN-096`, `PAT-C-04` |
+| 11 | **A queda longa salva no destino mudando `checkpointRoom`** | `persist()` grava o envelope, mas o respawn lê `checkpointRoom`: sem a linha, morrer em L13-03 devolvia o jogador à beira (§8, `PAT-LD-05`) | `PAT-LD-05`, `DEC-011` |
 
 ---
 
@@ -520,6 +524,8 @@ E o último marco do ato (**"A ORDEM FOI DADA. NÃO CONSTA O NOME."**) é a mesm
 | `P-63` | **Ficha de `CEN-096` corrente de ar.** Aprovar: coluna 3×6, subida 140 px/s, **só com `HAB-07` ativo**, do piso ao teto sem interrupção, saída por alçapão `DEC-015`. Faltam `AST-017` (`tm_abismo`, ~14 tiles — o menor do jogo) e `UI-17` | `BKL-001`, `BKL-012`, LVL-13 |
 | `P-64` | **A queda longa de 3 s.** É a transição mais longa do jogo (todas as outras ≤ 600 ms) e a única em que o preto tem função. Precisa de playtest: 3 s é vertigem ou é espera? Alternativas: 2 s, ou queda visível sem fade. Depende de `VIS-009` | `VIS-009`, LVL-13 |
 
+> **Abertas pela implementação:** `P-83` (o eco não tem áudio) e `P-84` (as correntes são retângulos, não partículas) — ver [`PENDENCIAS.md`](../PENDENCIAS.md) § *LVL-13 em código*.
+>
 > **Fechadas nesta rodada:** 🟢 **`P-57`** — *"correntes de ar não têm setor"*. Resolvida aqui: viram **objeto de ambiente** (`CEN-096`), não ganho de altura de `HAB-07` (§6). `HAB-07` mantém a ficha de LVL-11 §7.1 intacta, e a régua horizontal de 1.042 px continua verdadeira.
 
 ---

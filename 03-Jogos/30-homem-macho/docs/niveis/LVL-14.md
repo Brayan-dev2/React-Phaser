@@ -643,6 +643,14 @@ O jogador que lutou em LVL-12 chega com `3 / 2`; o que correu chega com `2 / 2`.
 | 5 | **A sombra não escurece a arena, só o céu** | Contraste de leitura é piso de acessibilidade (`VIS-004`, `TST-014`); luz de contorno nos personagens (§5.3) | `VIS-004`, `VIS-009` |
 | 6 | **Zero plataformas pelo sexto setor seguido** | Uma praça de armas é plana, e o kit está fechado desde LVL-11 | `PAT-LD-01`, LVL-09–13 |
 | 7 | **A fala de morte tem duas palavras e nenhum verbo** | *"É seu."* — é passagem de posto, não entrega de item (§5.6) | `LOR-04`, `VIS-007` |
+| 8 | **`ENT-006` NÃO incrementa `keys`** | A §5.6 manda `keys += 1` e a §8.2 mede `keys` em L14-06 como **2 ou 3** — a sobra é a chave de LVL-12. Se ele somasse, o portão mostraria `4 / 2` e a placa "DUAS CHAVES. UMA SOBRA." deixaria de ser verdade. Ele entrega a lança e o posto, não a chave | `DEC-016`, §5.6, §8.3 |
+| 9 | **`keys` é derivado dos itens de chefe, não um campo novo** | `ITM-004`/`ITM-007`/`ITM-011` já existem desde LVL-03/LVL-08/LVL-12; contar os que estão na mochila evita um segundo estado que pode dessincronizar do save | `DEC-016`, `MEC-007` |
+| 10 | **A coluna do portão é sólida, não a fechadura** | `K` é decoração com `collide=false` no `.tmj` (§11); quem barra é a coluna `barrierTx` de `Room.locks`, e ela só existe enquanto `keys < 2` (`PAT-LD-06`) | `CEN-103`, `PAT-LD-06` |
+| 11 | **`C` é `ENT-006` só nesta sala** | `C` é placa de pressão em todo o resto do jogo. A sala decide o significado (`DEC-023`) e o campo `boss` é a autoridade — sem isso, a arena teria uma placa no lugar do chefe | `DEC-023` |
+| 12 | **`M` (maiúsculo) passa a ser monta-carga** | O glifo de LVL-08 era `m` minúsculo; a §3 do setor usa `M`. As duas formas leem `Room.hoist`, então a segunda parada continua sendo dado da ficha | `CEN-101`, `PAT-LD-08` |
+| 13 | **As ameias e o estandarte são peças de grupo** | `ff` desenha **uma** peça de 2 tiles, não duas de 1 (§4.3); `w` desenha uma ameia por célula | `CEN-102`, `CEN-104` |
+| 14 | **A sombra é um véu sobre o céu, e o piso não muda** | `ECLIPSE.skyAlpha` 0,42 e `floorAlpha` 0,1 — o contrário disso reprova `TST-014` (§5.3) | `VIS-004`, `TST-014` |
+| 15 | **O aviso da fase 2 sai por toast** | A §5.5 pede `aria-live`, e o build inteiro usa `game:toast` para isso (o mesmo canal de LVL-10/11/13). Um `aria-live` novo exigiria um quarto canal de UI | `VIS-009`, `DEC-019` |
 
 ---
 
@@ -653,6 +661,18 @@ O jogador que lutou em LVL-12 chega com `3 / 2`; o que correu chega com `2 / 2`.
 | `P-65` | 🔴 **Ratificar `DEC-016` e decidir o que a terceira chave faz.** Aprovar: `keys` como contador, portão em `≥ 2`, UI `x / 2` sem terceiro slot. E decidir se `ITM-011` **faz algo em LVL-16** (o Trono) — proposta: nada, e a placa "UMA SOBRA" já é a resposta. Depende de `P-47` | `LVL-15`, `LVL-16`, `P-47`, `P-61` |
 | `P-66` | **Ficha de `ENT-006` O Comandante.** Aprovar: 320 HP, fase em 160, `ATK-13` estocada 6 tiles/26 só na luz, `ATK-14` lança 7 tiles/24 só na sombra, **desarmado 1.200 ms**, `mobile=false`, `gate=arena`. Faltam `AST-018`, `AST-019` (`tm_fortaleza`), `UI-18` | `BKL-001`, `BKL-009`, `BKL-012`, LVL-14 |
 | `P-67` | **Luz de contorno na sombra.** O estado `shadow` do `CEN-100` precisa de uma regra de arte não-ambígua (espessura, cor, distância) para manter ≥ 3:1. Sem ela, `TST-014` reprova e o setor fica ilegível para parte dos jogadores | `VIS-004`, `VIS-009`, `AGT-01` |
+
+### O que o código já resolveu (2026-11-13)
+
+| ID | Situação no build |
+|---|---|
+| `P-65` | **`DEC-016` implementada**: `keys` é **derivado** dos itens de chefe (`core/eclipse.ts`, `GameScene.bossKeys`), o portão de L14-06 exige `≥ 2`, a UI mostra `CHAVES x / 2` no HUD e **não** cria terceiro slot. Medido no navegador: abre com 2 e com 3, **não** abre com 1 nem 0, e a coluna de (15,6) barra o jogador com 1 chave e some com 2 (`tests/lvl14.mjs`). Falta: ratificação formal e a decisão sobre `ITM-011` em LVL-16 |
+| `P-66` | **`ENT-006` implementado** (`core/comandante.ts`, `entities/Comandante.ts`, `COMANDANTE` em `tuning.ts`): 320 HP, fase em 160, `ATK-13` 6 tiles/26 só na luz, `ATK-14` 7 tiles/24 só na sombra, **desarmado 1.200 ms**, `mobile: false`, `gate: 'arena'`. Medido: `drift 0` com o jogador a correr, o céu troca o ataque dele e o relógio congela na morte. Faltam `AST-018`/`AST-019`/`UI-18` |
+| `P-67` | **Parcial**: a arte do build já separa céu e piso (`skyAlpha` 0,42 × `floorAlpha` 0,1) e a sombra do chefe usa `setTint` (luz de contorno). A regra publicada (espessura, cor, distância) continua aberta |
+| `P-85` | **novo** — o cue de transição do eclipse é um **toast de texto**, não áudio: `AMB-14` não existe no build (mesma situação de `P-83` em LVL-13). O jogador sabe que a sombra caiu sem olhar o céu, mas por leitura |
+| `P-86` | **novo** — a estocada de `ATK-13` é um retângulo na altura do quadril: **acerta quem está no chão e também quem pulou** (§5.3 manda isso), mas a caixa é generosa (6 tiles × 6 px com folga de ±0,5 tile). O playtest de `TST-006` dirá se é justo |
+
+> **Verificado com o jogo a correr** (`tests/lvl14.mjs`, 9 capturas): 0 plataformas e 15 estandartes/ameias por sala como a grade manda; o céu vai de `luz` a `sombra` sozinho em 5 s **sem chefe na sala**; na arena o chefe **não muda de `x`** nem com o jogador a correr (`drift 0`); os oito estados do ciclo aparecem (`luz`→`telegraph-estocada`→`estocada`→`recuperacao` e `sombra`→`telegraph-lanca`→`lanca`→`desarmado`); a fase 2 dispara em 160 HP, a grade quebra e o eclipse **congela**; o portão mostra `0/2`, `1/2`, `2/2`, `3/2` e só libera a coluna a partir de 2.
 
 > **Fechadas nesta rodada:** 🟢 **`P-61`** — *"economia de `ITM-011`"*. Resolvida por **`DEC-016`**: os dois chefes obrigatórios dão exatamente as 2 chaves exigidas, e a terceira não tem fechadura (§8). A ratificação virou `P-65`.
 

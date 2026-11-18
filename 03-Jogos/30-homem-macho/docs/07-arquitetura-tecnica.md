@@ -50,15 +50,16 @@ Payloads são snapshots serializáveis. Wrapper tipado em TypeScript sobre `Phas
 |---|---|---|---|
 | EVT-001 | `scene:ready` | `{ key: string }` | Phaser → React |
 | EVT-002 | `game:resources` | `{ hp: number; shield: number; power: number }` | Phaser → React |
-| EVT-003 | `game:inventory` | `{ slotsUsed: number; pinnedCount: number }` | Phaser → React |
+| EVT-003 | `game:inventory` | `{ slotsUsed: number; pinnedCount: number; itens: readonly ItemId[]; presos: readonly ItemId[] }` | Phaser → React |
 | EVT-004 | `game:death` | `{ areaId: string; recoverable: boolean }` | Phaser → React/serviço |
 | EVT-005 | `ui:pause` | `{ paused: boolean }` | React → Phaser |
 | EVT-006 | `ui:settings` | `{ music: number; sfx: number; reducedMotion: boolean }` | React → Phaser |
 | EVT-007 | `save:result` | `{ ok: boolean; revision?: number; errorCode?: string }` | Serviço → React/Phaser |
 | EVT-008 | `game:completed` | `{ scope: 'mvp' \| 'campaign' }` | Phaser → React/serviço |
-| EVT-009 | `ui:inventory-command` | `{ action: 'pin' \| 'unpin' \| 'recover'; itemId?: string }` | React → Phaser/serviço |
+| EVT-009 | `ui:inventory-command` | `{ action: 'pin' \| 'unpin' \| 'recover'; itemId?: ItemId }` | React → Phaser |
 
-No código, `|` nos tipos literais representa união TypeScript; as barras são escapadas nesta tabela Markdown. [SUPOSIÇÃO] HUD recebe alterações relevantes com teto de 10 Hz, não eventos a cada frame.
+No código, `|` nos tipos literais representa união TypeScript; as barras são escapadas nesta tabela Markdown. **Extensões locais aditivas** (`DEC-019`, atualizadas em `DEC-039`): `game:inventario`/`ui:inventario` (mochila aberta), `game:bau`/`ui:bau-command` (baú das salas seguras), `game:moedas` (moedas de mobs e chefes), `game:bau` com `moedas` e os seis gestos de `ui:bau-command` (`guardar`, `retirar`, `guardar-tudo`, `retirar-tudo`, `moedas-para-bau`, `moedas-do-bau`, com `quantidade` opcional) — `DEC-040`; `game:habilidades`/`ui:habilidades`/`game:habilidades-painel` e `ui:habilidade-command` (os níveis das habilidades) — `DEC-041`, `game:morte` (o que se perdeu) e `game:bolsa` (a bolsa da morte: existe, onde, com quê). Todas fora do contrato `EVT-###` e todas declaradas em `game/EventBus.ts`. **`DEC-042`** junta ao mesmo registo `Progress.tentativasDrop`/`SceneData.tentativasDrop` (o contador do drop raro de chefe, no save para o fecho do jogo não reiniciar a contagem) e `game:habilidades` com `max = 10` por linha; o drop não tem evento próprio — usa `game:text` e `game:toast`. **`DEC-043`** acrescenta ao mesmo registo `game:mapa` (a planta do setor com o estado de cada sala, as ligações e a coluna dos 16 setores — a UI desenha, não calcula topologia), `ui:mapa`/`game:mapa-painel` (abrir e fechar o painel) e `Progress.visitadas`.
+[SUPOSIÇÃO] HUD recebe alterações relevantes com teto de 10 Hz, não eventos a cada frame.
 
 ## 7.6 Gerenciamento de estado (o que vive em React, em Phaser, em registry, em storage)
 

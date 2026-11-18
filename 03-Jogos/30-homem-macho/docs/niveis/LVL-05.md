@@ -427,12 +427,30 @@ Altura máxima: **138 px** simples (2,15 tiles) · **276 px** duplo (4,31 tiles)
 
 ---
 
+## 12-A. Desvios de implementação (código)
+
+O setor está implementado **atrás de flag** (`FLAGS.lvl05 = false`) e verificado por
+`npm run lvl05`. Estes são os pontos em que o código não seguiu o documento ao pé da letra.
+
+| # | O documento diz | O código faz | Por quê |
+|---|---|---|---|
+| I-1 | §3 usa `X` para `HAB-05` e `B` para bloco | `X` virou `ITM-005` no alfabeto de itens; `B` é resolvido por sala (`glyphs: { B: 'block' }`) | `B` já era o chefe em LVL-03; o significado é da sala (`DEC-023`) |
+| I-2 | §5.1: empurrar a 60 px/s com *snap* | tween de 1 tile a 60 px/s (TILE/60 ms) e snap na coluna, disparado pela **intenção de input** | medir pela velocidade resultante nunca dispara: o bloco é sólido e zera a velocidade do jogador ao encostar |
+| I-3 | §5.3: "não atravessa parede" | `blockedColumns()` lê a **grade da sala** (`y=6`) | parede é dado do nível, não número à mão; desnível continua bloqueando |
+| I-4 | §8: o contrapeso é estado de mapa e vai para o save | o código mantém `counterweight` na cena (sobrevive à morte e à troca de sala), mas **não** grava no `localStorage` | o save de `MEC-007` não tem campo de mapa; `P-74` registra a dívida |
+| I-5 | §1: saída por elevador para **LVL-06** | com Força + contrapeso o elevador avisa `LVL-06 FORA DO BUILD · SETOR [PÓS]` | LVL-06 não existe; emitir `game:completed` mentiria sobre o fim do jogo |
+| I-6 | §5.2: "quebrar piso rachado" não deve ser implementado | não foi implementado — `P-38` segue aberta | é o próprio documento que pede para adiar |
+| I-7 | §4: `HAB-05` é adquirida em L05-04 | a habilidade também é **reaplicada na remontagem da sala** a partir de `collected` | sem isso `TST-005` falha: o `Player` é recriado a cada `mountRoom` e a Força se perdia na morte |
+
+---
+
 ## 12. Pendências geradas
 
 | ID | Item | Bloqueia |
 |---|---|---|
 | `P-37` | **LVL-04 não tem atalho de retorno.** `PAT-LD-08` exige atalho fim→início em todo setor com 4+ salas, e LVL-04 tem 5. Corrigir junto com LVL-05 (que resolve o problema pelo elevador de 2 paradas) | `PAT-LD-08`, LVL-04 |
 | `P-38` | **`HAB-05` não tem ficha numérica.** `04-setores` §4.2 lista a habilidade mas não define velocidade de empurrão, se quebra piso rachado, nem se afeta combate. Faltam também `ITM-005`, `AST-006` e `UI-12`, que não têm catálogo canônico | `BKL-011`, `BKL-012` |
+| `P-74` | **Contrapeso não persiste no save.** O código guarda o engate na sessão (resistiu à morte no teste), mas `MEC-007` não tem `world_state`. Decidir o escopo: bloco novo no save, ou contrapeso reengatável em LVL-05 | `PAT-C-07`, LVL-05 §8 |
 | `P-39` | **Confirmar que não existe rolagem vertical de câmera.** `07-padroes` §7.1 implica isso (20×11 = tela exata), mas nenhum documento afirma explicitamente. Se a câmera **puder** rolar na vertical, LVL-05 deve ser refeito com poços de 20+ linhas antes de qualquer arte | `BKL-001`, LVL-05, setores 06–16 |
 
 ---

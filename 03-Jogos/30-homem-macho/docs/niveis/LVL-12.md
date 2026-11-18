@@ -619,6 +619,11 @@ Não por compaixão: porque quem bate é ele. A bigorna é dele. É a única coi
 | 4 | **Zero plataformas, zero vãos, zero alçapões** | Quarto setor seguido sem plataforma; o kit fecha em LVL-11 e o setor valida combate, não geometria | `PAT-LD-01`, LVL-09–11 |
 | 5 | **A esteira é `decor-back`, não transporte** | Movimento de plataforma exigiria ficha, ensino e validação. Aqui ela é **informação**, não obstáculo (§4.3) | `CEN-090`, `P-62` |
 | 6 | **`ITM-011` é condicional** | Recompensa que não existe se o chefe não cair é o único jeito de a luta opcional ter preço (§8) | `MEC-009`, `P-61` |
+| 7 | **`setImmovable` saiu do corpo do chefe** | Contra um corpo **estático** do Arcade ninguém se separa: marcá-lo imóvel o fazia **cair pelo piso**. A imunidade a knockback (§5.1) vem de `takeHit` nunca aplicar velocidade — não do corpo | `ENT-005`, `PAT-C` |
+| 8 | **O desenho da onda mostra a faixa inteira; o dano segue o frente** | O golpe precisa de leitura antes de chegar; desenhar só o frente deixaria a ameaça invisível no primeiro frame. O custo é o inverso — a faixa anuncia mais do que já está a acontecer (`P-80`) | `ATK-12`, `VIS-009` |
+| 9 | **A fase 2 não troca o sprite** | `§5.5` pede que ele atire o martelo fora; a arte placeholder é **um** sprite, e a troca fica para `AST-015` (`P-81`) | `ENT-005`, `AST-015` |
+| 10 | **A esteira não corre** | `CEN-090` "anda sempre para a direita"; o código desenha a cinta e pulsa o alfa. Scroll contínuo pede textura em tira (`P-82`) | `CEN-090` |
+| 11 | **O relógio dos pilões começa na montagem da sala** | Montar em `mountRoom` é o que garante a defasagem de meio período desde o primeiro instante, com ou sem luta (§7.3) | `CEN-092` |
 
 ---
 
@@ -631,6 +636,8 @@ Não por compaixão: porque quem bate é ele. A bigorna é dele. É a única coi
 | `P-62` | **Canonizar a origem dos Distorcidos.** L12-03 revela que eles são montados numa esteira **com uma peça faltando**. Isso explica `ENT-002` inteiro e sustenta `P-42` e `P-58`, mas é uma afirmação de lore forte: confirmar com `LOR-03b` antes de `AGT-01` desenhar a esteira | `LOR-03b`, `AGT-01`, `P-42`, `P-58` |
 
 > **Fechadas nesta rodada:** nenhuma. `P-59` (canal de 8 tiles de LVL-09) continua aberta e **não afeta** este setor.
+>
+> **Abertas pela implementação:** `P-80` (onda × desenho), `P-81` (martelo da fase 2) e `P-82` (elos da esteira) — ver [`PENDENCIAS.md`](../PENDENCIAS.md) § *LVL-12 em código*.
 
 ---
 

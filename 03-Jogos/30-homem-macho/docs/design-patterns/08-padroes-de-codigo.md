@@ -134,6 +134,30 @@ export class Pool<T> {
 
 **Limites do GDD 7.11:** projéteis 40, partículas 30, efeitos 20. `acquire()` retornando `null` é comportamento correto, não erro.
 
+### `PAT-C-03` — a regra que este padrão obriga: **quem é o projétil?**
+
+Um callback de colisão no Phaser recebe os dois objetos **na ordem que ele normalizou**, não na
+ordem em que foram registados. `overlap(grupo, sprite, cb)` acaba em
+`collideSpriteVsGroup(sprite, grupo)` e o callback é chamado `(sprite, filhoDoGrupo)` — ou seja, o
+**inimigo** vem primeiro. Assumir «o primeiro argumento é o projétil» devolveu em L03-02 um chefe
+desligado do jogo em vez de um tiro consumido (`DEC-046`).
+
+```ts
+// errado: o primeiro argumento depende de quem é grupo e quem é sprite
+this.addOverlap(this.projectiles, this.boss, (proj) => this.despawnProjectile(proj));
+
+// certo: a pergunta é «qual destes dois pertence ao pool?», e responde-se pelo grupo
+private projetilDe(a: unknown, b: unknown): Phaser.Physics.Arcade.Sprite | null {
+  if (this.projectiles?.contains(a as Phaser.GameObjects.GameObject)) return a as Phaser.Physics.Arcade.Sprite;
+  if (this.projectiles?.contains(b as Phaser.GameObjects.GameObject)) return b as Phaser.Physics.Arcade.Sprite;
+  return null;
+}
+```
+
+E o `release` do pool fica defensivo: nunca aceita um objeto que não seja do pool. Um `release` que
+aceita qualquer coisa **apaga do jogo o que lhe derem na mão** — e foi exatamente isso que o jogador
+viu: o chefe a desaparecer do ecrã ao levar um tiro.
+
 ---
 
 ## `PAT-C-04` — Tuning data-driven

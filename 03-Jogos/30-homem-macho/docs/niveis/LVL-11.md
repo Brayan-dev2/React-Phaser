@@ -20,11 +20,11 @@
 | # | Campo | Definição |
 |---|---|---|
 | 1 | **ID e nome canônico** | `LVL-11` — Jardim Profanado *(nome canônico do GDD §3.4)* |
-| 2 | **Objetivo** | Atravessar os vãos do jardim depois de obter o **estandarte** (`HAB-07`) e descer a chaminé para LVL-12 |
+| 2 | **Objetivo** | Atravessar os vãos do jardim com o **estandarte** (`HAB-07` — que **cai de chefe**, `DEC-042`) e descer a chaminé para LVL-12 |
 | 3 | **Duração e mortes** | 7–10 min · **0 mortes esperadas** — o setor **não mata** |
 | 4 | **Acento e materiais** | `PAL-11` magenta `#C76BA6` · pedra coberta de musgo, vidro de estufa, cipó, pétala |
 | 5 | **Sinais de ambientação** | **flora magenta que estala** · estátuas sem rosto (a trepadeira comeu) · cipós que marcam a beirada dos vãos · o único lugar do mundo que **ainda cresce** |
-| 6 | **Habilidade de entrada / saída** | Entrada: `HAB-03` escalada (alçapão de LVL-10). Saída: **`HAB-07` Planar** (`ITM-010`, ID proposto — `P-56`) |
+| 6 | **Habilidade de entrada / saída** | Entrada: `HAB-03` escalada (alçapão de LVL-10). Saída: **`HAB-07` Planar** (`ITM-010`, ID proposto — `P-56`), **obtido por drop de chefe** desde `DEC-042` |
 | 7 | **Salas** | 5 salas: 20 · **30** · **30** · **40** · 20 (× 11) = **140 tiles** |
 | 8 | **O que ensina** | **planeio** — e que distância, neste jogo, é uma função da altura |
 | 9 | **Set pieces** | `CEN-083` flora magenta · `CEN-084` estátua sem rosto · `CEN-085` trepadeira · `CEN-086` flor que estala · `CEN-087` estandarte rasgado · `CEN-088` chaminé |
@@ -46,7 +46,7 @@
 
 ```mermaid
 flowchart LR
-  A["L11-01<br/>Orla do Jardim<br/>20x11"] --> B["L11-02<br/>Estufa<br/>30x11<br/>HAB-07 + vao 11"]
+  A["L11-01<br/>Orla do Jardim<br/>20x11"] --> B["L11-02<br/>Estufa<br/>30x11<br/>vao 11 (drop de chefe)"]
   B --> C["L11-03<br/>Corredor de Cipos<br/>30x11<br/>vao 12"]
   C --> D["L11-04<br/>O Vao<br/>40x11<br/>vao 13 (trava)"]
   D --> E["L11-05<br/>Chamine<br/>20x11<br/>P"]
@@ -79,7 +79,7 @@ flowchart LR
 | `D` | `objects` | porta / passagem de área |
 | `V` | `objects` | **conduto da chaminé** (`CEN-088`) — queda de mão única, `interact` |
 | `E` | `objects` | Sentinela distorcida (`ENT-002`, variante `pruning`) |
-| `X` | `objects` | **`HAB-07` Planar** (`ITM-010`, ID proposto — `P-56`) |
+| `X` (removido por `DEC-042`) | `objects` | **`HAB-07` Planar** (`ITM-010`, ID proposto — `P-56`) |
 | `P` | `objects` | ponto de salvamento |
 | `N` | `objects` | inscrição / marco de lore |
 | `f` | `decor-back` | **flora magenta** (`CEN-083`) — balança com `AMB-11` |
@@ -145,7 +145,7 @@ y2  #.f.....................f....#
 y3  #............o...............#
 y4  +............................+
 y5  +............................+
-y6  +.P..X..c...........cN.......+
+y6  +.P.....c...........cN.......+
 y7  #########...........##########
 y8  #########...........##########
 y9  #########...........##########
@@ -154,7 +154,7 @@ y10 #########...........##########
 
 | Elemento | Posição | Função |
 |---|---|---|
-| **`X` estandarte** | (5,6) | **`HAB-07`** (`ITM-010`). Hold de 400 ms + flash `PAL-11`. **Tempo 1 de `PAT-LD-02`** |
+| ~~**`X` estandarte**~~ | (5,6) | **removido (`DEC-042`)** — `HAB-07` cai de chefe. O **Tempo 1 de `PAT-LD-02`** passa a ser só a visão do vão de 11 tiles |
 | `P` save | (2,6) | `UI-09` |
 | **vão** | **x = 9–19** | **11 tiles (704 px)** — 170 px além do alcance sem habilidade (§8) |
 | `+` porta / saída | (0,4)–(0,6) · (29,4)–(29,6) | entrada / saída para L11-03 |
@@ -165,10 +165,10 @@ y10 #########...........##########
 | `o` flor | (13,3) | `CEN-086` — **em cima do vão**, para o som vir de onde o jogador vai |
 | **Inimigos** | — | **zero** — tempo 1 de `PAT-LD-02` |
 
-- **Função:** entregar o estandarte e ensinar o planeio num vão de 11 tiles **sem nenhum inimigo**. A habilidade e o obstáculo estão na mesma sala, o `P` está a 3 tiles do item, e falhar custa 4 s.
+- **Função:** era entregar o estandarte; desde `DEC-042` o pedestal está vazio e a sala fica com o que ela tem de melhor — o vão de 11 tiles **sem nenhum inimigo**. A lógica mantém-se, o `P` está a 3 tiles do item, e falhar custa 4 s.
 - **Por que o vão vem depois do item e não antes:** `PAT-LD-03` pede a porta visível antes da chave. Aqui a sala é uma tela só, então **a porta é visível o tempo todo** — o jogador entra vendo o vão, pega o item a 4 tiles dele, e a ligação é imediata.
 - **Por que o item é um estandarte:** a Vigília tem estandartes desde LVL-03 e o setor 14 tem "estandarte negro". O jogador não ganha asas — ganha **uma bandeira rasgada de uma instituição que não existe mais**, e ela funciona como paraquedas. É a coisa mais "Homem Macho" do jogo: o herói planeia segurando um pano.
-- **Aceite:** recolher `HAB-07` e cruzar o vão. `TST-005` — morrer depois mantém a habilidade.
+- **Aceite:** cruzar o vão **com** `HAB-07` (obtida de chefe, `DEC-042`). `TST-005` — morrer depois mantém a habilidade — e é a garantia ao 12.º chefe que impede este setor de ficar sem saída.
 
 ---
 
@@ -457,6 +457,37 @@ Uma plataforma a 3 tiles do piso, posta sobre um vão, **encurta o vão pela met
 
 ---
 
+## 11-A. Implementação em código (`Estágio 3`)
+
+| Item da ficha | Onde vive | Prova |
+|---|---|---|
+| 5 salas, 140 tiles | `src/game/data/levels/lvl11.ts` | `lvl11.test.ts` — larguras 20·30·30·40·20 |
+| Grade de texto × ficha | `lvl11.doc.test.ts` | 2 testes, grades idênticas às publicadas em §4 |
+| Zero plataformas / zero argolas (§8.2, §8.3) | `LVL11` | unit: 0 `=` e 0 `A` nas 5 salas; 0 em `built.rings` no E2E |
+| Vãos de 11 · 12 · 13 tiles | `LVL11_GAPS` | unit: `{9..19}`, `{9..20}`, `{14..26}` medidos na linha 7 |
+| `HAB-07` só no fim de `L11-02`, antes do vão (`DEC-010`) | glifo `X` + `glyphs.X = 'glide-item'` | unit: item em x=5, vão começa em x=9 · E2E: `glide false → true` |
+| Descida de 120 px/s | `GLIDE.fallSpeed` + `Player.updateGlide` | E2E: `vy` nunca passa de **120** (e `descidaPxS ≈ 120`) |
+| Sem ganho de altura, nunca | `GLIDE.canGainHeight = false` | unit: `glideRange(0) === 0`; E2E: `subiuAlgumPixel: false` |
+| Só ativa no ar | `core/glide.ts: canGlide` | unit 4 casos · E2E: no chão `gliding === false` e andar continua 220 px/s |
+| Cancela ao soltar, sem cooldown | `Player.releaseGlide` | E2E: 120 → **505** px/s no mesmo instante, `gliding false` |
+| Alcance medido | `HORIZONTAL_RULER.glide = 1.022` | unit: 2 subidas + 2,30 s de descida = 3,32 s × 308 |
+| Trepadeira nas duas beiradas (`PAT-LD-09`) | glifo `c` + `glyphs.c = 'vine'` | unit: `c` em `x-1` e `x+1` de **cada** vão |
+| `CEN-083` flora, `CEN-084` estátua, `CEN-086` flor | `decorBack.flora/statue`, `decor.flower` | E2E: `flora 2`, `estatua 1`, `flores 1` em L11-01 |
+| `CEN-088` conduto, `interact`, não salva | `glyphs.V = 'duct'` + `Room.sink` | E2E: L11-05 → L11-01 em x=96, checkpoint **0 → 0** |
+| Setor não mata (`DEC-011`) | `PIT` + `respawnInRoom` | E2E: cai no vão, volta à entrada, **hp 150 → 150** |
+| `ITM-010` permanente (`TST-005`) | `ITEMS['ITM-010']`, `Player.unlockGlide` | unit + E2E: `abilities.glide false → true` |
+| `LVL11` fora do build | `FLAGS.lvl11 = false` | `AREAS` sim, `AREA_ORDER` não |
+| Capturas | `docs/capturas/L11-*.png` | `npm run shots11` (6 telas) |
+
+**Tecla:** não há tecla nova. O pano abre **segurando `ESPAÇO`/`W`/`↑` no ar, na descida** — o mesmo botão do pulo, que já era o do salto variável. No chão, segurá-lo não faz nada (`canGlide` exige `!onGround && falling`). Ver desvio 10.
+
+**Duas armadilhas de runtime que custaram uma rodada de depuração** (registadas porque voltam a aparecer em LVL-12/13):
+
+1. **`respawnInRoom` cria um jogador novo.** Um teste E2E que guarde `const p = s.player` e continue a ler `p` mede um cadáver: parece que o respawn não disparou e que o jogador caiu 2.000 px. Toda leitura tem de ir por `s.player` a cada amostra.
+2. **`setVelocity` por frame não segura a queda.** A gravidade é integrada em cada passo de física; um `setVelocityY(120)` no `update` da cena deixa a queda escapar para **~143 px/s** em ecrãs lentos, e 20% de velocidade a mais é o vão de 13 tiles a deixar de fechar. O pano usa `body.setMaxVelocityY(GLIDE.fallSpeed)`, que vale dentro do passo. Ver desvio 11.
+
+---
+
 ## 12. Desvios registrados
 
 | # | O que mudou | Por quê | IDs afetados |
@@ -468,6 +499,12 @@ Uma plataforma a 3 tiles do piso, posta sobre um vão, **encurta o vão pela met
 | 5 | **O conduto exige `interact`** | O glifo fica exatamente no caminho da saída. Passivo, viraria queda acidental — o erro que `P-37` corrigiu em LVL-04 | `PAT-LD-08`, LVL-04 |
 | 6 | **A Sentinela ganha a variante `pruning`** | O setor precisa de um inimigo que **cuide** do jardim em vez de patrulhá-lo, e isso é skin, não ficha nova | `ENT-002`, `P-58` |
 | 7 | **O setor não mata** | Respiro pós-clímax de um Ato que vem de chefe e de aperto; a moeda do setor é tempo, não vida (§5) | `PAT-LD-04` |
+| 8 | **4 Sentinelas nas grades, não 5** | O campo 10 de §1 anuncia `ENT-002 × 5`; as grades de §4 têm **4** (9,6 de L11-01 · 25,6 de L11-03 · 6,6 e 33,6 de L11-04). `L11-02` tem zero de propósito (tempo 1 de `PAT-LD-02`) e `L11-05` é a boca do conduto. Codado o que está **desenhado**, e a diferença fica registada em vez de resolvida em silêncio (`P-78`) | `ENT-002`, §1 campo 10, `PAT-LD-10` |
+| 9 | **O alcance do planeio é 1.022 px, não 1.042** | A conta tem de incluir as duas subidas: `2 × (560/1100) + 276/120 = 3,32 s`, e `3,32 × 308 = 1.022`. Os 20 px do documento vêm do solver somar frames de borda. O veredito dos três vãos **não muda** — a margem do vão de 13 cai de 210 para **190 px** (3 tiles) e nenhum vão passa a ser impossível. `GLIDE.rangePx` guarda o valor medido, como `P-56` exige | `P-56`, §7.2, §8 |
+| 10 | **O pano abre no mesmo botão do pulo, segurado na descida** | A ficha diz "segurar o botão de habilidade no ar" e não define o botão. `ESPAÇO` já é pulo e salto variável, e a condição `velocity.y > 0` separa os dois usos sem ambiguidade: subindo é pulo, caindo é pano. Não inventa tecla e não conflita com `Q` (gancho) nem com `E` (interagir) | `HAB-07`, `PAT-C-05` |
+| 11 | **O freio é `setMaxVelocityY`, não `setVelocityY`** | Ver 11-A: um teto por frame deixa a queda a 143 px/s e o vão de 13 tiles deixa de fechar em ecrãs lentos. O teto do Arcade vale em todos os passos de física, que é o que o GDD mediu | `HAB-07`, §7.1, §8 |
+| 12 | **O conduto não atravessa para LVL-12 no build** | `LVL-12` não existe em `AREAS` e `FLAGS.lvl11` é `false`, logo a saída leste de L11-05 não tem destino. O setor é jogável inteiro e o atalho **é** testado (L11-05 → L11-01); a saída para a forja entra com LVL-12 (`PAT-C-10`) | `PAT-C-10`, §4.5 |
+
 
 ---
 
@@ -475,12 +512,15 @@ Uma plataforma a 3 tiles do piso, posta sobre um vão, **encurta o vão pela met
 
 | ID | Item | Bloqueia |
 |---|---|---|
-| `P-56` | **Ficha de `HAB-07` e do estandarte.** Aprovar: descida 120 px/s, horizontal 308 px/s, sem ganho de altura, ativação por segurar no ar. Faltam `ITM-010`, `AST-014`, `UI-15`. A régua de 1.042 px tem de entrar em `tuning.ts` como valor medido, não estimado | `BKL-001`, `BKL-012`, LVL-11, LVL-12, LVL-13 |
+| `P-56` | **Ficha de `HAB-07` e do estandarte** — **fechada em código** (2026-11-13): `ITM-010`, descida 120, horizontal 308, sem altura, ativação por segurar no ar; régua medida em `GLIDE.rangePx = 1.022` (desvio 9). **Continua aberta na arte:** `AST-014` (`tm_jardim`) e `UI-15` são texturas provisórias do `BootScene` | `BKL-001`, LVL-12, LVL-13 |
 | `P-57` | **Correntes de ar não têm setor** — **→ fechada em LVL-13** com `CEN-096`: objeto de ambiente que sobe a 140 px/s só com o pano aberto. `HAB-07` mantém a ficha de §7.1 intacta | `04-setores` §4.2, LVL-13 |
 | `P-58` | **Variante `pruning` de `ENT-002`.** É skin de uma Sentinela que poda em vez de patrulhar, ou é `ENT-005` com ficha de combate própria? A diferença muda o orçamento de arte de LVL-11 | `AGT-01`, `ENT-002`, LVL-11 |
 | `P-59` | 🔴 **O canal de 8 tiles de LVL-09 é atravessável sem o gancho.** O solver dá **534 px (8,3 tiles)** de salto duplo correndo; a trava de `09 → 10` é um vão de **512 px**. Sobram 22 px. Opções: (a) alargar o canal de L09-05 para 11 tiles, (b) manter e aceitar que o gancho ali é conveniência e não trava, (c) revisar o alinhamento da argola. **Não corrigido em silêncio** | `LVL-09`, `HAB-04`, `P-53` |
 
-> **Fechadas nesta rodada:** nenhuma. `P-50` foi fechada em LVL-10 (`DEC-015`).
+| `P-78` | **`ENT-002` × 4 ou × 5 em LVL-11.** O campo 10 de §1 anuncia 5; as grades de §4 desenham 4. O código segue as grades (desvio 8). Decidir se falta uma Sentinela em L11-05 ou se o campo 10 está errado | `AGT-01`, `ENT-002` |
+| `P-79` | **A régua publicada de 1.042 px vs a medida de 1.022 px.** `core/glide.ts` e `tuning.ts` guardam **1.022** (desvio 9). Se o GDD quiser publicar 1.042, tem de dizer de onde vêm os 20 px; até lá vale o valor medido | `P-56`, §7.2 |
+
+> **Fechadas nesta rodada:** `P-56` em código (arte pendente). Abertas `P-78` e `P-79` nesta rodada; `P-59` **continua aberta** e é a única pendência vermelha do setor.
 
 ---
 

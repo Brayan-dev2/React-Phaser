@@ -434,6 +434,22 @@ Altura máxima: **138 px** simples (2,15 tiles) · **276 px** duplo (4,31 tiles)
 
 ---
 
+## 12-A. Desvios de implementação (código)
+
+O setor está implementado **atrás de flag** (`FLAGS.lvl04 = false`) e verificado por
+`npm run lvl04`. Estes são os pontos em que o código não seguiu o documento ao pé da letra.
+
+| # | O documento diz | O código faz | Por quê |
+|---|---|---|---|
+| I-1 | §3 dá `T` como `decor-back` de 4 tiles | `LevelBuilder` desenha em `depth 2`, sem corpo de colisão | é exatamente o pedido; registrado porque a árvore **atravessa** as linhas `y3–y6` da grade e isso parece erro de colisão para quem lê a grade |
+| I-2 | §5.2 fala em `patrol_offset` 0 / 8 / 16 tiles | a fase é **derivada do relógio** (`core/patrol.ts`), sem offsets por inimigo | três offsets em trechos de 8 tiles sairiam do trecho; sincronizar pelo relógio dá o mesmo resultado e mantém a formação mesmo com uma morta (§5.3) |
+| I-3 | §6.1 dá o mesmo glifo `V` para entrada e chegada | `glyphs: { V: 'sink' }` em L04-05 e `{ V: 'sink-arrival' }` em L04-01 | a chegada é `arrival_only`: sem grade, sem `interact`, senão o jogador teleportaria de volta ao pousar (`DEC-023`) |
+| I-4 | §6.1 diz "cai 3 tiles" | o jogador entra em `y=184` e **pousa** no piso em `y=448` | a queda é a leitura da cena; o teste confere a chegada em `x=160` e a ausência de dano/save |
+| I-5 | §4 exige 6 inimigos | a Ronda tem 3 Sentinelas **em formação**; as outras 3 são patrulhas soltas | o código segue a contagem da grade; a formação é ligada por `Room.ronda` só em L04-03 |
+| I-6 | §5.2 e `P-35` pedem aval técnico antes de implementar | a Ronda está implementada e **testada**, mas o setor não é jogável no build | `P-35` segue aberto como decisão de *design*; o código só não bloqueia a discussão |
+
+---
+
 ## 12. Pendências geradas
 
 | ID | Item | Bloqueia |

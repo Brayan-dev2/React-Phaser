@@ -29,6 +29,12 @@ Todos são cenários planejados, não testes já executados.
 | TST-015 | Dado PT-BR ou EN-US, quando percorrer todas as telas MVP, então textos corretos aparecem sem chaves ausentes ou corte impeditivo. |
 | TST-016 | Dada matriz e rede documentadas, quando executar percurso, então desempenho, carregamento e build são medidos contra 7.11 e erros bloqueantes corrigidos. |
 | TST-017 | Dado pagamento confirmado e reenvio do mesmo webhook, quando crédito for processado, então saldo é creditado uma única vez; reembolso revoga conforme política. Pós-MVP. |
+| TST-018 | Dado um save, quando abrir o mapa, então a sala atual está marcada, as percorridas e as portas vistas aparecem e o resto não é desenhado; dado L02-02, quando atravessar a fenda do teto, então chega a L02-06 (`DEC-043`). |
+| TST-019 | Dada a porta de senha de L02-07 fechada, quando o herói caminhar contra ela, então fica dentro da sala (não sai do mundo); dada a senha certa, então passa e **volta a passar** depois de sair e regressar, e o save guarda que ela cedeu (`DEC-044`). |
+| TST-020 | Dado qualquer chefe com tiro disponível, quando o projétil o acertar, então o **projétil** é despachado e o chefe continua visível, ativo e com corpo; e o Guardião de LVL-03 chega a 0 HP e a arena abre (`DEC-046`). |
+| TST-021 | Dado o jogo inteiro, quando se atravessa cada uma das **15 passagens** de setor para setor com o gesto real (`KeyD` na saída leste, `KeyE` no elevador, alçapão e portão), então a área de destino é a esperada, a vida e o escudo viajam intactos e o kit não se perde; e as travas cobram o que a ficha diz (elevador sem Força não sobe, portão com uma chave não abre); e no fim o trono de L16-06 encerra o jogo com o crachá, sem «FIM DO RECORTE» em parte alguma (`DEC-047`). |
+| TST-022 | Dado LVL-01 ampliado, quando se entra em cada uma das seis salas, então o número de corpos e o arquétipo de cada um são os que a ficha diz, o atirador **dispara** um projétil reto, o voador **não tem gravidade** e fica no ar, a câmara **rola** numa sala maior que o ecrã, e o dano é o do arquétipo e não uma constante (`DEC-048`). |
+| TST-023 | Dado o herói agarrado a uma parede de ganchos, quando se segura **subir** (`W`/`↑`), então o corpo sobe contínuo a 90 px/s **sem largar a garra em momento nenhum**, e segurar o **pulo** em vez disso produz o salto de parede e não uma subida (`DEC-049`). |
 
 ## 10.3 Plano de playtest (perfil, roteiro, métricas, perguntas)
 

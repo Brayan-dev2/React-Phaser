@@ -613,6 +613,11 @@ Seis portas lacradas em duas salas (3 + 3). Elas são decoração **com função
 | 5 | **A revivificação é infinita** | Punição limitada ensina a esperar; ilimitada ensina a não matar um de cada vez. E como a punição é só tempo, o erro custa 4 s (§5.5) | `ENT-007` |
 | 6 | **A suspensão de 800 ms é a única perda de controle do jogo** | É o nome do setor. Teto de 800 ms, HUD contável e `aria-live` — constrangimento, não punição (§5.3) | `VIS-009`, `TST-014` |
 | 7 | **Nenhum `SFX` ambiente no setor — inclusive a cinza e as portas** | Um lacre é mudo. E a `[SUPOSIÇÃO]` de batida de coração em `06-audio` é **descartada**: um coração é um som que o jogador não faz (§7.3) | `AMB-15`, `CEN-107`, `CEN-109` |
+| 8 | **O par não tem fase 2 — a barra mostra `1/2`** | A §5.3 diz que o sobrevivente **recua** em vez de enfurecer. Uma "FASE 2" na barra contradiria o único chefe do jogo que fica *menos* agressivo ao perder. O contador de corpos vai no nome (`O GUARDIÃO DUPLO · 1/2`) e a barra é uma só, de 360 | `VIS-007`, `ENT-007` |
+| 9 | **A revivificação recomeça a cada interrupção, sem contador** | A §5.5 diz "nova janela de 4 s começa". Com 30 de dano a cada 4 s, a revivificação é de fato **infinita** — e o E2E prova: quatro interrupções seguidas e o caído continua em `queda` com 0 HP | `ENT-007`, `TST-016` |
+| 10 | **O sobrevivente abandona o golpe para canalizar** | `ATK-18` é prioridade sobre `telegraph`/`golpe`/`recuperacao`. Sem isso a janela de 4 s podia começar 1 s atrasada e o jogador leria "o corpo não reviveu" como bug | `ENT-007`, `PAT-LD-07` |
+| 11 | **O teto da suspensão é `SUSPEND.maxMs` (`tuning`), não o número do chamador** | `Player.suspend()` corta em 800 ms mesmo que alguém peça mais. É o primeiro estado de perda de controle do projeto e vira precedente (`P-70`) | `VIS-009`, `P-70` |
+| 12 | **A porta de serviço é `Room.sink` com `mode: 'interact'`** | `PAT-LD-08` forma (c): o mesmo mecanismo do sumidouro de LVL-04, sem veículo e sem altura. `save: false` porque atalho ≠ transição | `PAT-LD-08`, `CEN-106` |
 
 ---
 
@@ -623,6 +628,18 @@ Seis portas lacradas em duas salas (3 + 3). Elas são decoração **com função
 | `P-68` | **Ficha de `ENT-007` O Guardião Duplo.** Aprovar: **1 entidade, 2 corpos**, 180 HP cada, janela de morte simultânea **4.000 ms**, revivificação infinita com 50%, interrupção a **30 de dano**, `ATK-16` lanterna 4 tiles/20, `ATK-17` selo 6 tiles/12, suspensão **800 ms** com 2 selos. Faltam `AST-020`, `AST-021` (`tm_antesala`), `UI-19` (barra dupla) | `BKL-001`, `BKL-010`, `BKL-012`, LVL-15 |
 | `P-69` | 🔴 **Ratificar os dois desvios de `PAT-LD-07`.** (a) Arena de **30×11** em vez de 24×11; (b) **dois corpos** para um chefe. A regra diz "24×11, piso contínuo, 1 chefe". Se a regra for mantida ao pé da letra, o guardião duplo precisa de outra solução — e a luta de equilíbrio desaparece | `Proprietário` | `PAT-LD-07`, LVL-15, LVL-16 |
 | `P-70` | **Suspensão: 800 ms é o teto de perda de controle do jogo.** Confirmar o teto, o HUD contável (1/2–2/2) e o comportamento em `reduce_motion`. É o primeiro estado de perda de controle do projeto e vira precedente para qualquer efeito futuro | `AGT-07` | `VIS-009`, `TST-014`, LVL-15 |
+
+### O que o código já resolveu (2026-11-13)
+
+| ID | Situação no build |
+|---|---|
+| `P-68` | **`ENT-007` implementado** (`core/duo.ts`, `entities/Guardiao.ts`, `GUARDIAO` em `tuning.ts`): **2 corpos × 180 HP**, janela de morte simultânea de 4.000 ms, revivificação **infinita** com 50%, interrupção a 30 de dano acumulado, `ATK-16` 4 tiles/20, `ATK-17` 6 tiles/12 e suspensão de 800 ms com dois selos. Faltam `AST-020`/`AST-021`/`UI-19` (barra dupla de verdade) |
+| `P-69` | **Implementado como o documento pede**: arena de **30×11** com **dois corpos** e `PAT-LD-07` aplicado à **entidade** (1 chefe), não ao corpo. Medido: os dois nascem a **10 tiles** um do outro e a grade só cede com os dois a 0 HP. A ratificação do desvio continua aberta |
+| `P-70` | **Implementado**: `SUSPEND.maxMs = 800` no `tuning`, `Player.suspend()` corta no teto, o HUD mostra `1 / 2` e `2 / 2` e a suspensão é anunciada por `aria-live`. Medido: **1 selo não segura** e **2 seguram 724 ms** |
+| `P-87` | **novo** — a barra do chefe é **uma só** (360) com `1/2` no nome, não duas barras finas como a §5.4 pede: `game:boss` carrega um único `hp`. A UI de `UI-19` resolve isso quando existir |
+| `P-88` | **novo** — a suspensão não tem **efeito de arrasto visual** (o `reduce_motion` da §5.3 pede que ele exista e seja desligável). Hoje ela só trava a entrada, o que é mais seguro e menos legível |
+
+> **Verificado com o jogo a correr** (`tests/lvl15.mjs`, 7 capturas): 3 portas lacradas por corredor (9 células cada, `TTT`), o quadro com as 5 linhas, os dois corpos a 10 tiles, **um corpo caído não encerra a luta** (o outro canaliza e o caído volta com 90 HP), **quatro interrupções seguidas** mantêm o caído no chão com 0 HP, os **dois** juntos processam `MEC-009` e a grade cede, **1 selo não suspende** e **2 suspendem por 724 ms**, e a porta de serviço leva de L15-06 a L15-01.
 
 > **Fechadas nesta rodada:** nenhuma. `P-65` (a sobra de `DEC-016`) continua aberta e é a última decisão de design do jogo — ela se resolve em LVL-16.
 

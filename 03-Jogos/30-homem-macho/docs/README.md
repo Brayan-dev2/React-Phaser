@@ -27,6 +27,7 @@ Este diretório reúne o **Game Design Document (GDD)** do *Homem Macho*, dividi
 | 11 | [Requisitos Consolidados](11-requisitos-consolidados.md) | `11-requisitos-consolidados.md` | REQ-F / REQ-NF e matriz de rastreabilidade |
 | 12 | [Premissas, Riscos Abertos e Perguntas Pendentes](12-premissas-riscos-e-perguntas-pendentes.md) | `12-premissas-riscos-e-perguntas-pendentes.md` | Itens P-01–P-13 |
 | 13 | [Apêndices](13-apendices.md) | `13-apendices.md` | Glossário, referências, auditoria do GDD |
+| 14 | [Arte: tilesets e spritesheets](14-arte-tilesets-e-spritesheets.md) | `14-arte-tilesets-e-spritesheets.md` | Medidas para a arte encaixar: tile 64, células, folhas, atlas, validador `npm run arte` |
 
 ## Como ler
 

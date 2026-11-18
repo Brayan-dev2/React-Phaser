@@ -18,11 +18,11 @@
 | # | Campo | Definição |
 |---|---|---|
 | 1 | **ID e nome canônico** | `LVL-10` — Torre da Vigília *(nome canônico do GDD §3.4 — o único setor do Ato III com nome que não é de trabalho)* |
-| 2 | **Objetivo** | Subir a torre, obter a **garra** (`HAB-03`) e sair pelo **alçapão** do topo para LVL-11 |
+| 2 | **Objetivo** | Subir a torre **com** a **garra** (`HAB-03` — que **cai de chefe**, `DEC-042`) e sair pelo **alçapão** do topo para LVL-11 |
 | 3 | **Duração e mortes** | 6–9 min na primeira visita · **0–1 mortes esperadas** |
 | 4 | **Acento e materiais** | `PAL-10` pedra alta · pedra, ferro, corda, sino rachado |
 | 5 | **Sinais de ambientação** | **sino sem badalo** · corda que desce até o chão e sobe para o escuro · ganchos de ferro da Vigília nas paredes · um quarto com cama feita · poeira parada (a torre não tem vento) |
-| 6 | **Habilidade de entrada / saída** | Entrada: `HAB-04` gancho. Saída: **`HAB-03` Escalada** (`ITM-009`, ID proposto — `P-53`) |
+| 6 | **Habilidade de entrada / saída** | Entrada: `HAB-04` gancho. Saída: **`HAB-03` Escalada** (`ITM-009`, ID proposto — `P-53`), **obtida por drop de chefe** desde `DEC-042` |
 | 7 | **Salas** | 5 salas: 20 · 20 · **30** · 20 · 20 (× 11) = **110 tiles** |
 | 8 | **O que ensina** | **escalada** e, por oposição a LVL-09, **o que é um lugar seguro** |
 | 9 | **Set pieces** | `CEN-077` sino sem badalo · `CEN-078` corda do sino · `CEN-079` escada em caracol quebrada · `CEN-080` parede de ganchos · `CEN-081` alçapão · `CEN-082` poço da Vigília |
@@ -44,7 +44,7 @@
 
 ```mermaid
 flowchart LR
-  A["L10-01<br/>Base<br/>20x11"] --> B["L10-02<br/>Arsenal<br/>20x11<br/>HAB-03"]
+  A["L10-01<br/>Base<br/>20x11"] --> B["L10-02<br/>Arsenal<br/>20x11<br/>pedestal vazio (DEC-042)"]
   B --> C["L10-03<br/>Sala do Sino<br/>30x11<br/>hub + P"]
   C --> D["L10-04<br/>Quarto Seguro<br/>20x11<br/>P + Q"]
   D --> E["L10-05<br/>Escada em Caracol<br/>20x11<br/>alcapa"]
@@ -79,7 +79,7 @@ flowchart LR
 | `D` | `objects` | porta / passagem de área |
 | `.` | — | ar |
 | `E` | `objects` | Sentinela distorcida (`ENT-002`) |
-| `X` | `objects` | **`HAB-03` Escalada** (`ITM-009`, ID proposto — `P-53`) |
+| `X` (removido por `DEC-042`) | `objects` | **`HAB-03` Escalada** (`ITM-009`, ID proposto — `P-53`) |
 | `W` | `objects` | **poço da Vigília** (`CEN-082`) — desce para LVL-03, `requires=HAB-03` |
 | `r` | `objects` | **corda do sino** (`CEN-078`) — `interact`, desce para L10-01 |
 | `P` | `objects` | ponto de salvamento |
@@ -146,7 +146,7 @@ y2  #....t...v.........#
 y3  #..................#
 y4  +..................+
 y5  +..................+
-y6  +..N...X...E...E...+
+y6  +..N.......E...E...+
 y7  ####################
 y8  ####################
 y9  ####################
@@ -155,16 +155,16 @@ y10 ####################
 
 | Elemento | Posição | Função |
 |---|---|---|
-| **`X` garra** | (7,6) | **`HAB-03`** (`ITM-009`). Hold de 400 ms + flash `PAL-10` + notificação. **Exposição 3** |
+| ~~**`X` garra**~~ | (7,6) | **removido (`DEC-042`)** — `HAB-03` cai de chefe. A **Exposição 3** passa a ser a parede `H` de L10-04, sozinha |
 | `t` tocha | (5,2) | a estante pegou fogo e parou |
 | `E` Sentinelas | (11,6) · (15,6) | patrulhas de 3 e 3 tiles, dessincronizadas |
 | `N` marco | (3,6) | **"ARMÁRIO DO TERCEIRO TURNO. NINGUÉM ASSINOU A DEVOLUÇÃO."** (8 palavras) |
 | `v` janela | (9,2) | `CEN-074` reskin |
 | **Plataformas** | — | **nenhuma** |
 
-- **Função:** entregar a escalada. O arsenal da Vigília é o único lugar do mundo onde equipamento foi **guardado** em vez de largado — e é por isso que a garra ainda está lá.
+- **Função:** era entregar a escalada; desde `DEC-042` é o lugar onde ela **não** está. O arsenal da Vigília continua a ser o único lugar do mundo onde equipamento foi guardado em vez de largado — e é por isso que a garra ainda está lá.
 - **Por que dois inimigos:** é a única sala do setor onde a coisa desejada está guardada, e o jogador precisa **escolher** entre limpar e pegar.
-- **Aceite:** recolher `HAB-03`. `TST-005` — morrer depois e voltar ao checkpoint **mantém** a habilidade.
+- **Aceite:** chegar ao alçapão **com** `HAB-03` (obtida de chefe, `DEC-042`). `TST-005` — morrer depois e voltar ao checkpoint **mantém** a habilidade.
 
 ---
 
@@ -271,7 +271,15 @@ y10 ####################
 | **Plataformas** | — | **nenhuma** — e é obrigatório que não haja (§6.3) |
 
 - **Função:** a subida. A escada em caracol original está quebrada no meio; no lugar dela, a Vigília cravou ganchos até o teto. O alçapão está **aberto** — e é a diferença visual entre ele e o lacrado de L10-01 que fecha a exposição 2.
-- **Como se atravessa:** encostar na parede de (13–14) com direção pressionada, subir 6 tiles a 90 px/s (**4,3 s**), e entrar no alçapão.
+- **Como se atravessa:** encostar na parede de (13–14) com a direção pressionada por **100 ms**
+  (a aderência), e depois **`W`/`↑` sobe, `S`/`↓` desce, `ESPAÇO` salta da parede**. Subir 6 tiles
+  a 90 px/s = **4,3 s**, e entrar no alçapão. Soltar as teclas fica pendurado — a garra agarra,
+  não escorrega (`DEC-049`).
+- **O que estava errado até `DEC-049`:** a subida estava ligada ao **pulo**, e na parede o pulo é o
+  salto de parede — o herói agarrava, saltava para longe, voltava a agarrar. O setor era uma parede
+  que se agarrava e não se escalava. A textura de `CEN-080` também passou de muro com ganchos a
+  **escada de ferro**: o dono olhou para a sala e disse «virou uma parede», e estava a ler o desenho
+  antes da mecânica.
 - **Por que o inimigo está do outro lado:** ele é opcional por construção. Quem sobe não o encontra; quem desce do outro lado o encontra. Escolha do jogador, não penalidade.
 - **Aceite:** entrar no alçapão. `TST-013` verde no setor.
 
@@ -346,6 +354,10 @@ E ela custa **zero** linha nova de grade: o teto já estava lá. A sala continua
 | Atributo | Valor | Observação |
 |---|---:|---|
 | Adesão | **100 ms** ao encostar em parede `climbable` com direção pressionada | análogo do `coyoteMs` |
+| Gesto de subir | **`W`/`↑`** — e **não** o pulo (`DEC-049`) | o pulo agarrado é o salto de parede |
+| Gesto de descer | **`S`/`↓`** | se as duas estiverem premidas, **desce** (saída de emergência) |
+| Salto de parede | **`ESPAÇO`** sozinho | 420 px/s para longe da parede; a direção contrária **não** é pedida (soltaria a garra antes) |
+| Contacto | vale **160 ms** depois de o corpo se afastar (`CLIMB.contactRefreshMs`) | sem isto, subir descolava |
 | Subida | **90 px/s** | 6 tiles = 384 px = **4,3 s** |
 | Descida controlada | **240 px/s** | mais rápida que subir, de propósito |
 | Queda livre sem aderência | gravidade **1100 px/s²** | a garra não muda a física de queda |
@@ -374,7 +386,7 @@ Solver de passo fixo a 60 Hz na config canônica **B** (`DEC-014`).
 |---|---|---|---:|---:|---|
 | **alçapão lacrado** | L10-01 | vertical | 384 px | 108 px | intransponível **e selado** ✓ |
 | **alçapão aberto** | L10-05 | vertical | 384 px | 108 px | **trava 10 → 11** — só com `HAB-03` ✓ |
-| parede de ganchos | L10-05 | superfície | 6 tiles | — | escalada a 90 px/s = 4,3 s ✓ |
+| parede de ganchos | L10-05 | superfície | 6 tiles | — | escalada a 90 px/s = 4,3 s, **contínua, sem largar a garra** (`DEC-049`) ✓ |
 | poço da Vigília | L10-01 | objeto | — | — | `requires=HAB-03` (regra, não geometria) ✓ |
 | corda do sino | L10-03 | descida | 1 sentido | — | queda controlada, sem dano ✓ |
 | **plataformas** | todas | — | **0 no setor** | — | nada a validar por salto |
@@ -455,6 +467,29 @@ Solver de passo fixo a 60 Hz na config canônica **B** (`DEC-014`).
 
 ---
 
+## 11-A. Implementação em código (`Estágio 3`)
+
+| Item da ficha | Onde vive | Prova |
+|---|---|---|
+| 5 salas, 110 tiles | `src/game/data/levels/lvl10.ts` | `lvl10.test.ts` — larguras 20·20·30·20·20 |
+| Grade de texto × ficha | `lvl10.doc.test.ts` | 2 testes, grades idênticas às publicadas |
+| Zero plataformas (a trava, não o estilo) | `LVL10` | unit: 0 `=` e 0 `A` nas 5 salas |
+| Alçapão lacrado (`CEN-081`) | `Room.hatch` + corpo sólido no `LevelBuilder` | E2E: tocando o teto, a **sala não muda** |
+| Alçapão aberto = trava 10 → 11 | `hatch: { state:'open', requires:'HAB-03' }` | E2E: sem garra, toast **"O ALÇAPÃO ESTÁ FORA DE ALCANCE."** e sala igual |
+| `DEC-015`: 6 tiles vs 4,3 do duplo | `core/climb.ts` | unit: 384 − 276 = **108 px** de falta |
+| `HAB-03` escalada | `core/climb.ts` + `Player.climb` | `climb.test.ts` 7/7 · E2E: `cling` em **~100 ms** e 6 tiles em **3,3 s** |
+| Parede de ganchos (`CEN-080`) | `Room.climbable` + `BuiltRoom.climbables` | E2E: sem garra, `climb === "none"`; com garra, sobe até o alçapão |
+| Poço da Vigília (`CEN-082`) | `Room.sink` com `requires` | E2E: sem garra fica em LVL-10; com garra vai a **LVL-03** |
+| Corda do sino (`CEN-078`) | `sink` + glifo `r` | E2E: L10-03 → L10-01 em x=1120, checkpoint **0 → 0** |
+| Sino **sem badalo** (`CEN-077`) | decor-back `bell` (3×3) | unit: `BBB` em y1–y3; nenhum `SFX` de sino existe no código |
+| `ITM-009` permanente (`TST-005`) | `ITEMS['ITM-009']`, `Player.unlockClimb` | unit + E2E: `abilities.climb false → true` |
+| `LVL10` fora do build | `FLAGS.lvl10 = false` | `AREAS` sim, `AREA_ORDER` não |
+| Capturas | `docs/capturas/L10-*.png` | `npm run shots10` (6 telas) |
+
+**Tecla:** escalar usa `W`/`↑` (subir) e `S` (descer) encostado na parede com a direção pressionada; `ESPAÇO` é o **pulo de parede** (420 × 560). Não há tecla nova.
+
+---
+
 ## 12. Desvios registrados
 
 | # | O que mudou | Por quê | IDs afetados |
@@ -465,6 +500,10 @@ Solver de passo fixo a 60 Hz na config canônica **B** (`DEC-014`).
 | 4 | **Poço da Vigília: atalho de longa distância 10 ↔ 03** | Primeiro atalho do jogo que cruza setores. É o que torna viável revisitar o MVP num mundo de 16 setores (`DEC-005`) | `PAT-LD-08`, `DEC-005` |
 | 5 | **`Q` (quadro de aviso) só aqui e em L01-05** | `LOR-04` diz que o quadro é de baixo impacto e do quarto seguro. Há dois quartos seguros no jogo, então há dois quadros | `LOR-04` |
 | 6 | **L10-04 é o último checkpoint antes de LVL-11** | Sem ele, morrer no setor seguinte custaria a subida inteira — e a subida **é** o conteúdo deste setor | `PAT-LD-05` |
+| 7 | **O alçapão fica sobre a parede, e o corpo não caberia dentro dele** | A grade publicada põe `^` em (13–14, y0) e `H` em (13–14, y1–y6): fisicamente, um corpo de 110 px não pode ocupar a coluna do alçapão, porque a parede é sólida até `y=6`. Resolvido sem tocar na grade: **quem chega ao topo escalando entra no alçapão pelo topo da parede** (`GameScene.checkTransition`, bloco `cling`) — a boca é o teto, e o teto é a passagem | `DEC-015`, `CEN-080`, §6.3 |
+| 8 | **`^` também alimenta `ceilingHoles`** | A passagem vertical só existia para `+` em `y=0` (fenda de LVL-07). Sem isso o alçapão não disparava `checkTransition` e o teto ficava decorativo | `DEC-015`, §6 |
+| 9 | **A corda é uma peça por coluna e a boca do atalho é o pé dela** | Três sprites empilhados viravam uma grade de três retângulos; três `sink`s viravam três bocas. Uma corda contínua e **um** `interact` no pé é o que a ficha descreve | `CEN-078`, §4.3 |
+| 10 | **`mountRoom` cai para a sala 0 quando o índice não existe** | O poço apontava para uma sala de LVL-03 que não existe (o setor tem 4, não 6) e derrubava a cena com `undefined.grid`. Um atalho errado tem de ser um destino errado, não um crash | `CEN-082`, `MEC-007` |
 
 ---
 

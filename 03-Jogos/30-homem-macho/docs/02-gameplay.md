@@ -33,6 +33,8 @@ Todos os números desta seção são **[SUPOSIÇÃO] valores iniciais para teste
 | MEC-005 | Exploração e habilidade | Descobrir salto duplo para acessar nova rota; P1. | Explorar e interagir. | Habilidade de acesso é permanente e não cai na morte. | Notificação e mudança visual da rota. | Dado salto duplo descoberto, quando morrer e carregar checkpoint, então habilidade permanece ativa. TST-005. |
 | MEC-006 | Obstáculos e puzzle | Evitar armadilha e abrir porta por senha descoberta no cenário; P1/P2. | Movimento e interação. | Senha do MVP fixa, de 4 símbolos; pista está na mesma região. | Sinais visuais e resposta sonora; mensagens não dependem só de cor. | Dada a senha correta, quando confirmada, então porta abre; senha incorreta mantém porta fechada. TST-006. |
 | MEC-007 | Salvamento | Passagens de fase salvam automaticamente; quarto seguro permite salvar; P3. | Transição ou interação. | Persistência no servidor autenticado; fases de desafio não criam checkpoints de transição. | Ícone de salvamento e confirmação/erro. | Dado usuário conectado, quando atravessar transição elegível, então posição e progresso confirmados são restaurados após novo login. TST-007. |
+
+> **Quantos slots** (`DEC-027`): o build guarda **três** partidas locais (`homem-macho/save/v1/slot-1…3`) e o menu inicial mostra-as para o jogador escolher qual retomar; o save antigo de chave única é migrado para o slot 1. `MEC-007` continua a definir **quando** se grava (transição, quarto seguro, saída para o menu); `DEC-027` define **onde**. Quando houver servidor (`P-14`), muda o transporte, não o número de slots.
 | MEC-008 | Dificuldade | Fácil, médio e difícil escolhidos no início; P2/P3. | Seleção inicial; oferta após mortes; seleção pós-final. | Durante campanha só redução ofertada após 3 mortes consecutivas no mesmo trecho/chefe; pós-final permite escolher qualquer nível no mesmo save. | Tela de seleção e oferta opcional. | Dadas 3 mortes consecutivas no mesmo trecho no difícil, quando reaparecer, então há oferta recusável de nível inferior. TST-008. |
 | MEC-009 | Chefe e conclusão | Superar chefe da área e registrar conclusão; P1/P2. | Combate. | MVP conclui após chefe do recorte; vitória de campanha completa depende do chefe final. | Animação, recompensa e tela de conclusão. | Dado chefe com 0 HP, quando derrota for processada, então recompensa e conclusão do recorte ocorrem uma vez. TST-009. |
 | MEC-010 | Desafio procedural opcional | Variações de sala/armadilhas somente em desafios opcionais; P1/P2. | Entrada voluntária; somente pós-MVP. | [SUPOSIÇÃO] Geração por peças validadas e seed; rota obrigatória permanece fixa; sem checkpoint de transição. | Identificação do desafio e resultado. | Dada uma seed válida, quando gerar desafio duas vezes com a mesma versão de conteúdo, então a sequência de peças é igual e há caminho alcançável. TST-010. |
@@ -63,6 +65,8 @@ Arcade Physics: [SUPOSIÇÃO] gravidade 1.200 px/s² e velocidade horizontal 220
 
 ## 2.6 Regras de vitória, derrota, continue e respawn
 
+**[DEC-038]** A morte deixa uma **bolsa** no sítio da queda (na arena, à entrada) com todos os itens e moedas perdidos; recupera-se com `E` e o que não couber na mochila fica nela. **Só há uma bolsa**: morrer outra vez sem a recuperar destrói a anterior. As barras de status e as habilidades conquistadas **não regridem** — voltam cheias no teto conquistado.
+
 Vida 0 causa morte. Reaparecer no último checkpoint de transição elegível ou salvamento em quarto seguro, o que for mais recente. Uma bolsa por jogador: caso outra morte ocorra antes de recuperar a anterior, a anterior é destruída e uma nova é criada com os itens não presos restantes. **[SUPOSIÇÃO]** Itens equipados não presos também caem; um kit básico não comercial e sem slots é restaurado para recuperação. Dinheiro, XP, habilidades de acesso e cosméticos comprados não caem. [PENDENTE] Confirmar kit e tratamento de equipamento em uso. O MVP vence com o chefe do recorte; a campanha completa, com o chefe final.
 
 ## 2.7 Progressão e desbloqueios
@@ -71,7 +75,7 @@ O jogador explora com liberdade; áreas acessíveis podem ser perigosas. Habilid
 
 ## 2.8 Economia e recompensas (fontes, sumidouros, curvas)
 
-MVP: dinheiro e XP obtidos em combate; [SUPOSIÇÃO] 5 moedas e 10 XP por inimigo comum, sem loja nem sumidouro obrigatório. A quantia é salva no servidor. Não confundir moeda do jogo com Manch's. Pós-MVP: lojas de cosméticos podem aceitar moeda de jogo ou Manch's, conforme item; alguns itens serão obtidos jogando. Manch's só entram mediante compra. [PENDENTE] Preços, fontes/sumidouros e simulação de inflação antes de implementar economia comercial; pagamentos não integram o MVP.
+MVP: dinheiro e XP obtidos em combate; [SUPOSIÇÃO] 5 moedas e 10 XP por inimigo comum, sem loja nem sumidouro obrigatório. *(Atualizado em `DEC-042`: o build usa **20 moedas por inimigo** e **200 por chefe** — o sumidouro são as melhorias das habilidades, §4.3.2 do doc 04.)* A quantia é salva no servidor. Não confundir moeda do jogo com Manch's. Pós-MVP: lojas de cosméticos podem aceitar moeda de jogo ou Manch's, conforme item; alguns itens serão obtidos jogando. Manch's só entram mediante compra. [PENDENTE] Preços, fontes/sumidouros e simulação de inflação antes de implementar economia comercial; pagamentos não integram o MVP.
 
 ## 2.9 Dificuldade, curva de aprendizado e tutorial (onboarding)
 
@@ -102,4 +106,5 @@ MVP: contador de XP, dinheiro, inventário e marcador de bolsa. Combo de armas b
 | Vida do chefe MVP | 200 | 100 | 400 | HP | MVP |
 | Danos de inimigo/armadilha/chefe | 20 | 10 | 40 | HP/impacto | Antes de multiplicador de dificuldade sobre dano à vida |
 | Slots / itens presos | 40 / 20 | 40 / 20 | 40 / 20 | slots / itens | Requisito confirmado |
+| Perda na morte | 30 % dos acumulativos · 100 % das simples · 20 % das forjadas · 0 % dos presos · 100 % das moedas | igual | igual | fração | **Decidido** (`DEC-037`): as percentagens não mudam com a dificuldade |
 | Mortes para oferta | 3 | 2 | 5 | mortes | Consecutivas, mesmo trecho |

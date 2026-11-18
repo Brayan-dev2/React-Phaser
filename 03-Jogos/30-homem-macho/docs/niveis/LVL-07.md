@@ -437,6 +437,27 @@ Solver de passo fixo a 60 Hz na config canônica **B** (`DEC-014`). Tabela compl
 
 ---
 
+## 12-A. Desvios de implementação (código)
+
+O setor está implementado **atrás de flag** (`FLAGS.lvl07 = false`) e verificado por
+`npm run lvl07`. Estes são os pontos em que o código não seguiu o documento ao pé da letra.
+
+| # | O documento diz | O código faz | Por quê |
+|---|---|---|---|
+| I-1 | §3 usa `R` para o arco de costela | o glifo continua `R` na grade, mas o significado é da sala: `glyphs: { R: 'arc' }` | `R` é `ITM-006` (Fôlego) no alfabeto global de itens desde LVL-06; o significado é da sala (`DEC-023`) |
+| I-2 | §3 usa `v` para vitral | idem: `glyphs: { v: 'stained' }` nas três salas com vitral | `v` é cinza caindo em LVL-04 (`CEN-031`); sem a reinterpretação, a catedral choveria cinza |
+| I-3 | §3 usa `T` para a boca do trifório | `glyphs: { T: 'sink' }` em L07-05 e `{ T: 'sink-arrival' }` em L07-01 | `T` é árvore morta em LVL-04/06 (`CEN-030`) |
+| I-4 | §5.1: o trifório entra por salto deliberado | a boca tem zona própria e **só dispara por contato** (`mode: 'touch'`), nunca por `E` | o sumidouro de LVL-04 pede `E`; a boca de galeria não pode pedir — quem passa por baixo está andando, não entrando |
+| I-5 | §5.1: destino L07-01 (3,4) | destino declarado na **ficha da sala** (`sink: { area, room, at: {tx,ty}, mode }`) e convertido com `TILE` | a cena não inventa coordenada de nível; `PAT-C-04` vale para posições também |
+| I-6 | §5, técnica 1: 8 arcos a cada 4 tiles | a grade tem 9 células `R` em L07-01 (8 no ritmo de 4 tiles + 1 solto em x=34, y2) | o arco extra é o do documento (§4.1, `y2`); o ritmo de `x=4…32` está intacto |
+| I-7 | §5, técnica 2: arcos cortados pelo teto (`overflow_top`) | o arco é desenhado com no mínimo **3 tiles** de altura a partir da linha onde nasce, sempre encostado no teto | `overflow_top` é propriedade de arte; o código garante que o sprite nunca "termina" dentro do quadro |
+| I-8 | §10: a rosácea é `CEN-060` com `saturated=true` | o vitral é **uma peça por grupo** (2×5 tiles em L07-05), não uma célula por tile | desenhar célula a célula produzia duas rosáceas gêmeas lado a lado — o oposto do "acento único" |
+| I-9 | §1 campo 4: acento `PAL-07` osso iluminado `#E8E2D2` | o código usa `PAL.bone` (`#E6DFD2`), do único arquivo de paleta do projeto | `palette.ts` só tem PAL-00/PAL-01; uma paleta por setor não existe (`P-76`) |
+| I-10 | §10: `bgm=none` | `LVL07_META.bgm = 'none'`; nenhum sistema de áudio foi ligado | o áudio do projeto inteiro é fase posterior (`EVT-006`) |
+| I-11 | §2: `P` em (2,6) salva | o save do Coro existe e responde a `E`; **não** há autosave ao cruzar as portas do setor | o autosave por porta é do `mountRoom` (LVL-01…03) e já acontece; o `P` grava o checkpoint da sala |
+
+---
+
 ## 12. Desvios registrados
 
 | # | O que mudou | Por quê | IDs afetados |
@@ -456,6 +477,8 @@ Solver de passo fixo a 60 Hz na config canônica **B** (`DEC-014`). Tabela compl
 | ID | Item | Bloqueia |
 |---|---|---|
 | `P-43` | **Remover a trava "chefe de área" de 07 → 08.** Ela pertence a 08 → 09, onde já existe como "retorno após chefe". Quatro evidências no §7.1. Se recusada, LVL-07 precisa de um chefe próprio e o setor é refeito | `BKL-011`, LVL-07, LVL-08 |
+| `P-76` | **`PAL-07` não existe no código.** §1 campo 4 pede acento osso iluminado `#E8E2D2`; `src/game/data/palette.ts` só tem PAL-00/PAL-01, e LVL-04/05/06/07 usam `bone`/`stone` emprestados. Decidir: uma paleta por setor (16 conjuntos) ou uma paleta única com acentos | `BKL-012`, `PAT-C-04`, setores 04–16 |
+| `P-77` | **O trifório só é verificável por geometria no E2E.** O headless roda a ~9 FPS e o ápice amostrado do salto fica em ~95 px contra os 138 px canônicos, então o teste entra na boca por posicionamento e prova o "não dispara ao passar" por travessia. A prova de salto real depende de máquina com GPU (`P-39`) | `TST-013`, `PAT-LD-08` |
 | `P-44` | **O setor mais vazio do jogo se sustenta por 7–10 min?** 5 inimigos, 0 armadilha obrigatória, 0 trava, 0 habilidade. Se o playtest reprovar, a saída é **uma** seção de plataforma real no Coro — não encher a catedral de inimigos. Inclui `AST-008` sem catálogo | `BKL-012`, Ato II |
 
 ---

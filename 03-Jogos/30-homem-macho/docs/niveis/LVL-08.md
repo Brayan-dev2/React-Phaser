@@ -639,6 +639,30 @@ Se persistisse, a arena degradaria a cada tentativa: na quinta, o piso inteiro e
 
 ---
 
+## 12-A. Implementação em código (`Estágio 3`)
+
+| Item da ficha | Onde vive | Prova |
+|---|---|---|
+| 6 salas, 144 tiles | `src/game/data/levels/lvl08.ts` | `lvl08.test.ts` (larguras, teto/piso, 144 tiles) |
+| Grade de texto × ficha | `lvl08.doc.test.ts` | 2 testes derivados de `lvl07.doc.test.ts` |
+| Areia 0,75× só no chão | `src/core/sand.ts` + `GameScene.pointInSand` | `sand.test.ts` 9/9 · E2E: **0,75** em cima, **1,00** fora e no ar |
+| Areia nunca fere | — | E2E: hp **150 → 150** atravessando a faixa |
+| Relógio de âncoras (8/10/8 s, máx. 4) | `SAND.clockMs`, `SAND.phases` | E2E: **1 → 2** âncoras, **6** sprites de areia, âncoras em x=5·10·15·20 |
+| Areia zera na morte | `GameScene.resetSandOnDeath` | E2E: **3 → 0** depois da morte |
+| `ENT-004` 2 fases, 240 HP | `src/core/alferes.ts` + `entities/Alferes.ts` | `alferes.test.ts` 9/9 · E2E: **240 → 120** → `transicao-fase` |
+| `ATK-04` estocada, `ATK-06` eco | `ALFERES` em `tuning.ts` | E2E: dano de sabre/eco e melee aplicados na arena |
+| `MEC-009` idempotente no 0 HP | `Alferes.takeHit` | E2E: **1** processamento em dois `takeHit` a 0 HP |
+| Grade oeste fecha em x ≥ 3 | `GameScene.updateArena` | E2E: `westClosed false → true`, jogador barrado em **x=64** |
+| Grade leste quebra no 0 HP | `GameScene.onAlferesDefeated` | E2E: `eastOpen true` |
+| Monta-carga (`CEN-066`) | `GameScene.tryHoist` | E2E: antes da vitória, **"O CABO ESTÁ SEM CARGA."** e sem troca de sala |
+| `ITM-007` gated | `GameScene` (`bossDefeated`) | E2E: objeto só existe depois da vitória |
+| `LVL08` fora do build | `FLAGS.lvl08 = false` | `AREAS`/`AREA_ORDER` em `data/levels/index.ts` |
+| Capturas | `docs/capturas/L08-*.png` | `npm run shots08` (7 telas) |
+
+**Desvio de numeração, registado:** a §14 abaixo usa `P-45` para "LVL-07 sem atalho", mas `docs/PENDENCIAS.md` já fechou `P-45` com o trifório. O ID foi mantido aqui para não quebrar as referências cruzadas; a pendência real que sobra do LVL-08 é `P-46`/`P-47`/`P-48`.
+
+---
+
 ## 13. Desvios registrados
 
 | # | O que mudou | Por quê | IDs afetados |
@@ -652,6 +676,9 @@ Se persistisse, a arena degradaria a cada tentativa: na quinta, o piso inteiro e
 | 7 | **Recuperação do `ATK-04` é a válvula de dificuldade**, não a vida | Aumentar vida alonga a luta sem torná-la mais justa; a recuperação é a janela, e a janela é o que o jogador sente | §6.4 |
 | 8 | **`P` em L08-03 (com 1 inimigo)** | `PAT-LD-05` proíbe checkpoint em sala de desafio. Ele está a 2 tiles da porta da arena, ou seja, na transição — e sem ele morrer no chefe custa 3 salas, com o chefe cobrando 3–6 mortes | `PAT-LD-05` |
 | 9 | **`BGM-01` → `BGM-02` na queda da grade** | `06-audio` §4 já lista `BGM-02` para o setor 08; a troca no gatilho da luta é a mesma gramática usada em L03-01 | `BGM-01`, `BGM-02` |
+| 10 | **`grates` é uma peça por coluna, não por célula** | A grade tem 3 tiles de altura; três corpos sobrepostos davam três colisões para uma parede. O `LevelBuilder` agrupa o run vertical e emite **1 peça** com `tiles: 3` | `§4.1`, `CEN-065` |
+| 11 | **A areia não é objeto de `decor`** | O glifo `s` desenhava o tile e a ficha `Room.sand` desenhava o retângulo: dois desenhos, e o glifo caía no `else` do render (virava `sigil`). Agora o glifo só marca, quem desenha é a ficha — e a areia é uma **faixa de 18 px no pé do tile**, não um volume | `CEN-064`, §7.1 |
+| 12 | **`S` (sol) e `f` (estandarte) precisam de caso no render** | Sem ele caíam no `else` de `decorBack`, que em LVL-04 é o emissor de cinza — o pátio nevava cinza. O sol é **uma peça por grupo 3×3** | `CEN-067`, `CEN-069` |
 
 ---
 

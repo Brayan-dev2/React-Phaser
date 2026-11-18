@@ -19,6 +19,8 @@
 | REQ-F-011 | Entregar região MVP conectada e jogável até sua conclusão. |
 | REQ-F-012 | Pós-MVP: gerar desafios opcionais reproduzíveis e alcançáveis. |
 | REQ-F-013 | Pós-MVP: vender cosméticos sem vantagens e creditar Manch's de forma transacional. |
+| REQ-F-014 | Mostrar ao jogador, a qualquer momento e a partir de duas entradas (tecla e ícone no HUD), uma planta do setor com as salas percorridas, as portas já vistas e a posição atual — sem revelar o que não se viu (`DEC-043`). |
+| REQ-F-015 | Barrar fisicamente uma porta fechada e, uma vez aberta por senha, mantê-la aberta em todas as visitas e após retomar o save (`DEC-044`). |
 
 ## 11.2 Requisitos não funcionais (REQ-NF-###): desempenho, compatibilidade, acessibilidade, segurança
 

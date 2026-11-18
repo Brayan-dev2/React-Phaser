@@ -54,7 +54,7 @@ flowchart TD
 | Sala | Tipo de acesso | Elevação | Trava |
 |---|---|---|---|
 | L02-01 | esquerda | linhas 4–6 | — |
-| L02-02 | esquerda · direita · **teto** | 4–6 · 4–6 · linha 0 | **teto exige `HAB-01`** |
+| L02-02 | esquerda · direita · **teto → L02-06** | 4–6 · 4–6 · linha 0 | **teto exige `HAB-01`** |
 | L02-03 | esquerda · direita | 4–6 | — |
 | L02-04 | esquerda · direita | 4–6 | — |
 | L02-05 | esquerda apenas (beco) | 4–6 | — |
@@ -188,7 +188,7 @@ y10 ##############################
 | Elemento | Posição | Função |
 |---|---|---|
 | **plataforma do gate** | `=` em `y=4`, x = 22–25 | **3 tiles acima do piso** — inalcançável sem `HAB-01` |
-| **fenda no teto** | `+` em `y=0`, x = 24–25 | passagem para L02-06 |
+| **fenda no teto** | `+` em `y=0`, x = 24–25 | passagem para L02-06 — **destino declarado** (`DEC-043`) |
 | marcador dourado | borda da plataforma | `PAT-LD-09` — desambigua a altura |
 | `c` vela | (8,6) | `CEN-002` |
 | `G` sinete | (12,3) | `CEN-003` |
@@ -198,6 +198,7 @@ y10 ##############################
 - **Gate:** subida de **3 tiles (192 px)**. Sem `HAB-01`: falha em qualquer config e correndo. Com `HAB-01`: passa com **84 px** de margem a 60 Hz na config canônica B (`DEC-014`).
 - **Aceite:** sem `HAB-01`, o jogador **não** consegue subir (testado em jogo). Com `HAB-01`, sobe e atravessa a fenda em ≤ 2 tentativas.
 - **Nota:** a plataforma é *one-way*, então não bloqueia o corredor de baixo — o jogador atravessa por baixo dela para chegar a L02-03.
+- **`DEC-043` (a fenda tem destino próprio):** esta é a **única** fenda do jogo cujo destino não é «a sala seguinte» (`DEC-015`) — é a **rota alta**, L02-06 (índice 5). Sem essa declaração o motor mandava o jogador para L02-03, a sala que ele acabou de atravessar por baixo: o bug que o jogador encontrou em jogo e que o mapa (`UI-15`) tornou visível à primeira vista. A sala declara-o na ficha (`hatches: [{ from: 24, to: 25, destRoom: 5 }]`), e há dois testes a prendê-lo — `lvl02.test.ts` e `mapa.test.ts`.
 
 ---
 
@@ -354,7 +355,7 @@ y10 ####################
 |---|---|---|
 | `c` vela | (3,6) | `CEN-002` |
 | `G` sinete | (10,3) | `CEN-003` |
-| `Y` porta de senha | (19, 4–6) | `MEC-006` — painel `CEN-012` ao lado |
+| `Y` porta de senha | (19, 4–6) | `MEC-006` — painel `CEN-012` ao lado. **Fechada, é sólida** (`DEC-044`) |
 
 ### Mecânica da senha (`MEC-006`)
 
@@ -370,6 +371,17 @@ y10 ####################
 | Acessibilidade | os glifos têm nomes textuais no `aria-label` e a pista é legível em texto (nunca só imagem) |
 
 - **Aceite:** `TST-006` — senha correta abre; incorreta mantém fechada. Ambos verificados.
+- **`DEC-044` (o loop que o jogador encontrou).** A porta fechada **não tinha corpo**: o glifo `Y`
+  desenhava-a e não criava colisão, e o herói atravessava-a para fora do mundo, caía e o respawn
+  devolvia-o à entrada da sala — um loop literal. Cada tile `Y` passa a ser uma zona estática
+  (`BuiltRoom.passwordLock`), criada do glifo como o alçapão lacrado de `DEC-015` e destruída quando
+  a senha cede. E a porta aberta **fica aberta**: `passwordOpen` passa a viver no save
+  (`Progress.senhaAberta`) e `enterArea` deixa de o apagar — antes, voltar a L02-07 (ou morrer nela)
+  fechava a porta **e** calava o `E`, e o caminho para L02-08 cortava-se sozinho.
+- **Nota de leitura:** nesta sala a porta ocupa a última coluna (`x=19`), e a coluna de botões do HUD
+  (`UI-05`) assenta por cima dela — a porta é sólida e funciona, mas **vê-se pouco** (registado em
+  `P-99`). Quem desenhar a arte final deve decidir entre encolher o HUD, deslocar a porta para `x=17`
+  ou dar-lhe um realce próprio quando o herói se aproxima.
 
 ---
 
@@ -530,6 +542,15 @@ Solver de trajetória com os parâmetros do GDD §2.11 e corrida 1,4×. `✓` = 
 | 4 | Vãos da rota alta: 3,5 tiles → **4 tiles** | 3,5 tiles é alcançável com 1 salto na config B (224 px > 224 px de alcance) — não seria travessia | §8 |
 | 5 | Sala L02-06 passou a ter furo no piso como entrada | Coerência física com a fenda no teto de L02-02 | §10 |
 | 6 | Queda em vão = respawn sem dano | Evita frustração no primeiro setor de plataforma aérea | `PAT-LD-06` |
+
+### Desvios de implementação (código, 2026-11-15)
+
+| # | O que mudou | Por quê | IDs afetados |
+|---|---|---|---|
+| I-1 | O painel da senha é **React**, não Phaser, e pausa a cena enquanto está aberto | `ADR-01`: a UI não importa `game/`; o jogo só recebe a sequência por evento | `MEC-006`, `PAT-C-01` |
+| I-2 | O fragmento aceita os glifos `F` (§4) e `j` (alias) no `LevelBuilder` | O mesmo `ITM-003` aparece como `F` em LVL-02 e como `j` na legenda genérica de LVL-01 | `ITM-003` |
+| I-3 | A porta de senha é desenhada **uma vez por coluna**, com os 4 glifos empilhados | A grade marca `Y` em três tiles; desenhar por tile gerava três portas sobrepostas | `CEN-012` |
+| I-4 | O segundo salto usa o **mesmo impulso** do primeiro (138 + 138 = 276 px) | O documento §8 e `DEC-014` prometem 276 px; cortar a altura do segundo salto reduziria a margem do gate de 84 px para ~40 px | `DEC-014`, `HAB-01` |
 
 ## 13. Pendências geradas
 

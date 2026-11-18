@@ -18,11 +18,11 @@
 | # | Campo | Definição |
 |---|---|---|
 | 1 | **ID e nome canônico** | `LVL-09` — Canais Sombrios *(nome de trabalho, `[PÓS]`)* |
-| 2 | **Objetivo** | Atravessar o canal seco, obter o **gancho** (`HAB-04`) e subir a escada de serviço para LVL-10 |
+| 2 | **Objetivo** | Atravessar o canal seco, sair pelo canal com o **gancho** (`HAB-04` — que **cai de chefe**, `DEC-042`) e subir a escada de serviço para LVL-10 |
 | 3 | **Duração e mortes** | 8–11 min na primeira visita · **0–1 mortes esperadas** |
 | 4 | **Acento e materiais** | `PAL-09` tijolo molhado · tijolo, água suja, ferro, limo |
 | 5 | **Sinais de ambientação** | canal **seco** no meio de uma cidade que já teve água · água que só existe onde vazou · argolas de ferro gastas por mãos · ratos, a única coisa viva do jogo que não ataca |
-| 6 | **Habilidade de entrada / saída** | Entrada: `HAB-06` (fôlego). Saída: **`HAB-04` Gancho** (`ITM-008`, ID proposto — `P-51`) |
+| 6 | **Habilidade de entrada / saída** | Entrada: `HAB-06` (fôlego). Saída: **`HAB-04` Gancho** (`ITM-008`, ID proposto — `P-51`), **obtido por drop de chefe** desde `DEC-042` |
 | 7 | **Salas** | 6 salas: 20 · **30** · 20 · 20 · **30** · 20 (× 11) = **140 tiles** |
 | 8 | **O que ensina** | **o gancho** e, por oposição a LVL-07, **como fazer um espaço parecer pequeno** |
 | 9 | **Set pieces** | `CEN-071` água de canal · `CEN-072` argola de ferro · `CEN-073` comporta · `CEN-074` arco de tijolo · `CEN-075` rato |
@@ -47,7 +47,7 @@
 flowchart LR
   A["L09-01<br/>Boca<br/>20x11"] --> B["L09-02<br/>Canal Raso<br/>30x11<br/>P"]
   B --> C["L09-03<br/>Galeria Cega<br/>20x11<br/>alagada"]
-  C --> D["L09-04<br/>Casa de Bombas<br/>20x11<br/>HAB-04"]
+  C --> D["L09-04<br/>Casa de Bombas<br/>20x11<br/>pedestal vazio (DEC-042)"]
   D --> E["L09-05<br/>Poco<br/>30x11<br/>trava"]
   E --> F["L09-06<br/>Escada de Servico<br/>20x11<br/>P + atalho"]
   F --> X(["LVL-10<br/>Torre da Vigilia"])
@@ -81,7 +81,7 @@ flowchart LR
 | `~` | `objects` (`water`) | **água** — volume declarado na ficha, como em `LVL-06` §3 |
 | `E` | `objects` | Sentinela distorcida (`ENT-002`) |
 | `o` | `objects` | **argola de ferro** (`CEN-072`) — alvo de `HAB-04` |
-| `X` | `objects` | **`HAB-04` Gancho** (`ITM-008`, ID proposto — `P-51`) |
+| `X` (removido por `DEC-042`) | `objects` | **`HAB-04` Gancho** (`ITM-008`, ID proposto — `P-51`) |
 | `V` | `objects` | **sumidouro gradeado** (`CEN-076`) — atalho de mão única, `interact` |
 | `P` | `objects` | ponto de salvamento |
 | `N` | `objects` | inscrição / marco de lore |
@@ -219,7 +219,7 @@ y2  #........v.........#
 y3  #..................#
 y4  +..................+
 y5  +..................+
-y6  +..g...X...E.N..E..+
+y6  +..g.......E.N..E..+
 y7  ####################
 y8  ####################
 y9  ####################
@@ -228,16 +228,16 @@ y10 ####################
 
 | Elemento | Posição | Função |
 |---|---|---|
-| **`X` gancho** | (7,6) | **`HAB-04`** (`ITM-008`). Hold de 400 ms + flash `PAL-09` + notificação |
+| ~~**`X` gancho**~~ | (7,6) | **removido (`DEC-042`)** — o pedestal ficou vazio; `HAB-04` cai de chefe (8 %, garantia ao 12.º) |
 | `g` comporta | (3,6) | `CEN-073`, travada, sem colisão — a máquina que um dia bombeou |
 | `E` Sentinelas | (11,6) · (16,6) | patrulhas de 3 e 3 tiles, dessincronizadas |
 | `N` marco | (13,6) | **"TRÊS TURNOS POR DIA. NINGUÉM TROCOU O TURNO."** (9 palavras) |
 | `v` arco | (9,2) | `CEN-074` |
 | **Água** | — | **nenhuma** — a casa de bombas é o único lugar seco do canal |
 
-- **Função:** entregar a habilidade. É a sala mais "útil" do setor e a única com dois inimigos, porque **a coisa que o jogador quer está guardada**.
+- **Função:** era entregar a habilidade; desde `DEC-042` é **o lugar onde ela um dia esteve** — o pedestal vazio diz que o gancho existe e não está aqui. A sala continua a única com dois inimigos.
 - **Ensina:** nada de travessia. Ensina que aquele lugar já foi operado por gente.
-- **Aceite:** recolher `HAB-04` e sair. `TST-005` — morrer depois de pegar o gancho e voltar ao checkpoint **mantém** a habilidade.
+- **Aceite:** sair pelo canal **com** `HAB-04` (que se obtém de chefe, `DEC-042`). `TST-005` — morrer depois de pegar o gancho e voltar ao checkpoint **mantém** a habilidade.
 
 ---
 
@@ -478,6 +478,28 @@ Ele é uma passagem, não um ponto de salvamento. Se salvasse, o jogador poderia
 
 ---
 
+## 12-A. Implementação em código (`Estágio 3`)
+
+| Item da ficha | Onde vive | Prova |
+|---|---|---|
+| 6 salas, 140 tiles | `src/game/data/levels/lvl09.ts` | `lvl09.test.ts` — larguras 20·30·20·20·30·20 |
+| Grade de texto × ficha | `lvl09.doc.test.ts` | 2 testes, grades idênticas às publicadas |
+| Zero plataformas, zero armadilhas | `LVL09` (nenhum `=` e nenhum `A`) | teste + E2E: `plataformas: 0` |
+| Água por ficha da sala | `Room.water` → `waterRect` | E2E: `nadando: true`, fôlego caindo, **hp 150 → 150** ao afogar |
+| `HAB-04` Gancho | `src/core/hook.ts` + `Player.hook` | `hook.test.ts` 11/11 · E2E: `pull → hang` em x=928 e salto até **x=1355** |
+| Alcance de 6 tiles | `HOOK.reachTiles` + `pickRing` | E2E: puxou da borda (x=620) até a argola (x=928) |
+| Salto do gancho (380 + 560) | `Player.updateHook` | E2E: 224 px até o piso leste, `noPisoLeste: true` |
+| Trava por vão de 8 tiles | `LVL09[4]` (canal) | unit: 512 − 378 = **134 px** de margem · E2E: sem gancho, cai e volta a **x=90** |
+| Sumidouro `interact`, não salva | `Room.sink` (`CEN-076`) | E2E: L09-06 → L09-01 em **x=608**, checkpoint **0 → 0** |
+| Rato (`CEN-075`) | `BuiltRoom.rats` + tween de 2 tiles | E2E: o rato anda e **hp 150 → 150** perto dele |
+| `ITM-008` permanente (`TST-005`) | `ITEMS['ITM-008']`, `Player.unlockHook` | unit + E2E: `abilities.hook false → true` |
+| `LVL09` fora do build | `FLAGS.lvl09 = false` | `AREAS` sim, `AREA_ORDER` não |
+| Capturas | `docs/capturas/L09-*.png` | `npm run shots09` (8 telas) |
+
+**Tecla:** `Q` puxa, `ESPAÇO` salta do pendurado, `S` solta (queda vertical pura). Registado em `DEC-024`.
+
+---
+
 ## 11. Desvios registrados
 
 | # | O que mudou | Por quê | IDs afetados |
@@ -488,6 +510,11 @@ Ele é uma passagem, não um ponto de salvamento. Se salvasse, o jogador poderia
 | 4 | **O sumidouro exige `interact`** | Um buraco passivo no caminho da saída vira queda acidental. `interact` separa passagem de armadilha — mesma regra do sumidouro de LVL-04 | `PAT-LD-08`, `CEN-076` |
 | 5 | **O canal está seco** | Água corrente implica sistema vivo. Água onde ela não deveria estar é mais opressiva, e o vão seco é o único vão que não pode ser atravessado nadando | §1, `CEN-071` |
 | 6 | **A alcova de L09-02 é opcional** | Uma exposição de `PAT-LD-03` que seja obrigatória vira soft lock: o jogador chega nela antes de ter a habilidade | `PAT-LD-03`, `PAT-LD-06` |
+| 7 | **A queda de §6.3 está subestimada em 12%** | O documento soma 0,509 s de subida com a queda de 334 px *a partir do ápice*, mas o corpo desce 334 px **abaixo do ponto de partida**: a queda real é `334 + 142` (ápice do impulso de 560). O tempo é **1,43 s** e o alcance é **545 px**, não 1,29 s / 490 px. A folga da travessia aumenta; nenhuma decisão de layout muda | §6.3, `HAB-04`, `P-59` |
+| 8 | **`hangPosition` devolve o pé, não o centro** | O `Player` tem origem `(0.5, 1)`. Devolver o centro colocava o herói 59 px abaixo do lugar e o primeiro E2E pousou dentro do canal — o erro ficou registado porque é exatamente o tipo de bug que só uma travessia de verdade encontra | `HAB-04`, §6.2 |
+| 9 | **`Q` é a tecla do gancho (`DEC-024`)** | `ESPAÇO` já é o salto **do** pendurado; usar o mesmo botão para puxar e saltar apagaria os dois tempos do estado | `HAB-04`, `MEC-001` |
+| 10 | **O rato é decor com tween, não entidade** | `CEN-075` não tem vida, não tem ataque e não colide: dar-lhe corpo físico custaria um corpo por sala para nada. Ele vagueia 2 tiles e para, como a ficha pede | `CEN-075` |
+| 11 | **L09-06 não tem marco de lore** | A grade publicada não tem `N` na sala; o texto do sumidouro virou a mensagem do próprio `interact` (`sink.text`), que é onde o jogador o lê | `CEN-076`, §4.6 |
 
 ---
 

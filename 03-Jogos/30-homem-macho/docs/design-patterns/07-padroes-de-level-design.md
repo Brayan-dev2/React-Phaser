@@ -145,6 +145,55 @@ Solução: toda plataforma-alvo tem um marcador (`--gold`, 1 tile) na borda supe
 | Respiro | 0 | `PAT-LD-04` |
 | Arena | 1 chefe | — |
 
+### A mesma tabela em **densidade**, e não em contagem (`DEC-048`)
+
+A tabela acima foi escrita quando a sala maior tinha **40 tiles** — um teto de 3 corpos era, na
+prática, *um corpo por 13 tiles*. Com salas de 90 tiles, um teto fixo de 3 deixa de medir
+densidade e passa a medir o comprimento da sala: obriga a encher 90 tiles com os mesmos 3 corpos
+e a sala fica ainda mais vazia do que era. A regra que a substitui é a **razão**:
+
+| Tipo de sala | Corpos | Razão |
+|---|---:|---|
+| Ensino | 0–1 | ≤ 1 por 20 tiles |
+| Prática / Combinação | até `ceil(tiles / 20)` | 1 por 20 tiles |
+| Teste | idem, + armadilha | 1 por 20 tiles |
+| Respiro | 0 | — |
+
+**E o que a densidade não resolve sozinha:** *variedade*. Três Sentinelas espaçadas em 90 tiles
+não são mais combate do que uma — são a mesma luta três vezes. Por isso a densidade anda junta
+com o **rodízio de arquétipos** (`ENT-002`/`ENT-010`/`ENT-011`, `DEC-048`): numa sala de
+combinação, pelo menos dois arquétipos diferentes, senão não é combinação, é repetição.
+
+## 7.11c `PAT-LD-12` — Os três tipos de confronto com chefe (`DEC-048`, **contrato**)
+
+O jogo tem hoje **um** tipo de chefe: o de arena (`ENT-003`, `ENT-004`, `ENT-005`, `ENT-006`,
+`ENT-007`, `ENT-008`), com barra, porta que fecha e `MEC-009`. Os outros dois tipos existem no
+GDD de conteúdo mas **não têm contrato** — e sem contrato cada um seria inventado à mão num
+ficheiro de cena. Ficam aqui desenhados, com o que os distingue, para não haver dúvida no dia em
+que se implementarem. **Nenhum está implementado.**
+
+| | **Mini-boss** | **Chefe secreto** | **Chefe de arena** (existe) |
+|---|---|---|---|
+| Onde | sala comum, sem grade | sala escondida atrás de uma habilidade | arena própria |
+| Como começa | ao entrar no raio dele | só se o jogador o encontrar | ao cruzar a porta |
+| Porta fecha? | **não** | não | **sim** (`MEC-009`) |
+| Pode fugir? | sim, e ele fica com a vida que tinha | sim, e ele **cura** | não |
+| Barra no HUD | não — a vida lê-se no corpo | sim, quando ele aparece | sim |
+| Recompensa | moeda em quantidade + material | item permanente **único** (`DEC-042`) | chave/abertura + `MEC-009` |
+| Repetível | sim (respawn ao voltar à sala) | **não** (uma vez por campanha) | não |
+| Dano | 10–20, um ataque | 20–30, dois ataques | 20, telegraph de 500–800 ms |
+| Vida | 60–80 (3 golpes brancos) | 120–160 | 200+ |
+| Regra que o obriga | nunca bloqueia a rota crítica | nunca é preciso para acabar o jogo | — |
+
+**O que os três partilham e não pode divergir:** o aviso antes do ataque (`telegraphMs` ≥ 300,
+`P2`), a leitura do corpo (o que vai atacar muda de cor antes), a morte idempotente (`DEC-021`), e
+nenhum deles causa dano fora do ataque. Um mini-boss que mata por toque é uma armadilha com vida.
+
+**Onde entram primeiro:** o mini-boss é o mais barato e o que mais falta — cabe numa sala de
+combinação já existente sem tocar em mapa, porta nem HUD. O secreto precisa de uma sala escondida
+atrás de `HAB-04`/`HAB-03` (as duas habilidades que já abrem caminhos laterais em LVL-09/10).
+O de arena já existe seis vezes e não precisa de mais nenhum para o jogo estar completo.
+
 ## 7.12 Template de sala (copiar para o `.tmj`)
 
 ```

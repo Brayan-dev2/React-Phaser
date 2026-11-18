@@ -469,6 +469,26 @@ A unidade aqui é **segundo**, não tile. Conta: `t = distância / velocidade`.
 
 ---
 
+## 12-A. Desvios de implementação (código)
+
+O setor está implementado **atrás de flag** (`FLAGS.lvl06 = false`) e verificado por
+`npm run lvl06`. Estes são os pontos em que o código não seguiu o documento ao pé da letra.
+
+| # | O documento diz | O código faz | Por quê |
+|---|---|---|---|
+| I-1 | §4 usa `X` para o item de Fôlego | a grade **continua** com `X`, mas o significado é da sala: `glyphs: { X: 'breath-item' }` em L06-04 | `X` já é `ITM-005` (Força) no alfabeto global desde LVL-05; o glifo virou propriedade da sala (`DEC-023`) |
+| I-2 | §3: `~` marca a água célula a célula | o volume vem da **ficha da sala** (`water: { from, to, topRow, bottomRow }`); o `~` só tinge e decora | retângulo por ficha é o que sustenta §3 e evita 19 nós de colisão por sala |
+| I-3 | §4: `V` é cristal em toda sala | `decorBack` com `kind: 'crystal'`, animado (pulso de 2 s) | `CEN-050` é a única luz do setor; sem pulso parece tile morto |
+| I-4 | §5.2: nadar 160 px/s horizontal e 120 px/s vertical | `setSwimming(true)` desliga a gravidade e limita `maxVelocityY` a 120; salto não dispara na água | sem desligar a gravidade o jogador afunda a 1.200 px/s e a galeria vira incontrolável |
+| I-5 | §5.3: afogar devolve à **superfície** | o código remonta a sala (`mountRoom(roomIndex, 'start')`) com fade de 300 ms e **sem dano** | `DEC-011`: a morte custa tempo, não vida. Remontar é o único caminho que não deixa o jogador preso sob o teto da água |
+| I-6 | §5.3: contador de afogamentos para a dica | `drownsInRoom` zera ao respirar; a dica "A ÁGUA É FUNDA DEMAIS. FALTA FÔLEGO." só sai no **2º** afogamento da sala | `PAT-LD-11`: a primeira falha ensina pelo gesto, a segunda pela palavra |
+| I-7 | §5: a barra de fôlego é HUD permanente do setor | o HUD só aparece **submerso** (`breath.submerged`), com contagem em segundos e cor de alerta abaixo de 34 % | fora d'água o fôlego é irrelevante; uma barra cheia e inerte é ruído de tela |
+| I-8 | §8.2/§8.4: a galeria de L06-05 tem **19 tiles** (1.216 px) e leva **7,6 s** | a ficha da sala (§4) e o código têm **18 tiles** de água (x = 1–18, 1.152 px): **7,2 s** a 160 px/s. Medido no E2E: afogamento em **7,2 s** com 6 s de base; com `HAB-06` a porta é alcançada com **12,58 s** de 20 s restantes | o volume é o da ficha (§3); a contagem de 19 do §8.2 inclui a soleira `D` da saída. O veredito falha/passa não muda — `P-75` registra a divergência aritmética |
+| I-9 | §9: `HAB-06` sobrevive à morte | `unlockBreath()` é reaplicado em `mountRoom` a partir de `collected` | o `Player` é recriado a cada remontagem; sem isso `TST-005` falha |
+| I-10 | §4.1: saída para LVL-07 | a porta leste de L06-05 fica morta e a barra de debug mostra `LVL-06 · Mina Esquecida` | LVL-07 não existe; LVL-06 é o último setor escrito, e a saída não pode prometer conteúdo |
+
+---
+
 ## 12. Desvios registrados
 
 | # | O que mudou | Por quê | IDs afetados |
@@ -488,6 +508,7 @@ A unidade aqui é **segundo**, não tile. Conta: `t = distância / velocidade`.
 |---|---|---|
 | `P-40` | **Canonizar `HAB-06` no LVL-06** e aprovar a ficha: fôlego 6 s → 20 s, nado 160/120 px/s, afogamento sem dano, `ITM-006`, `AST-007`. Se recusada, L06-05 é refeita seca (§6.4) | `BKL-011`, `BKL-012` |
 | `P-41` | **"Escuro real" é arte ou mecânica?** Não há sistema de luz no projeto. Se mecânica, é `BKL` novo e muda o orçamento de arte do setor | `BKL-012`, `P-16` |
+| `P-75` | **A galeria de L06-05 tem 18 ou 19 tiles?** Ficha (§4) e código: 18 tiles de água (1.152 px, 7,2 s). §8.2/§8.4: 19 tiles (1.216 px, 7,6 s). Escolher um número e propagar | `TST-013`, `BKL-012` |
 | `P-42` | **`ENT-002` numa mina abandonada** — reskin de cristal ou inimigo próprio? A lore sustenta Sentinelas em qualquer lugar (Ato II), mas o bestiário do Ato II nunca foi definido | `BKL-011`, `P-38` |
 
 ---

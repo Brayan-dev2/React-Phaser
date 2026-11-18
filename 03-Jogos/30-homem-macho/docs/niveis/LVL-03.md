@@ -246,6 +246,16 @@ stateDiagram-v2
 
 **`ATK-03` — o pilar é a mecânica de perícia:** se a investida atinge um pilar, o pilar quebra (`CEN-021` → ruína, sem colisão) e o chefe fica **atordoado por 1200 ms** — janela suficiente para **2 golpes**. Dois pilares = 2 janelas extras por tentativa.
 
+> **`DEC-046` — o chefe é derrotável a tiro.** Em jogo, o Guardião **desaparecia ao levar um tiro**
+> (`K`): o callback de «projétil × chefe» recebia o **chefe** no parâmetro do projétil — em
+> `overlap(grupo, sprite, cb)` o Phaser entrega `(sprite, filhoDoGrupo)` — e desligava-o
+> (`active = false`, `visible = false`, corpo desligado). Com o corpo desligado ele deixava de
+> intersectar o golpe branco: a luta tornava-se impossível de ganhar, e o mesmo acontecia nos
+> outros cinco chefes. A regra está agora num sítio só (`projetilContra`/`projetilDe`, «qual destes
+> dois está no pool?») e há teste dedicado (`npm run tiro`), que corre os seis chefes e leva o
+> Guardião até 0 HP com a arena a abrir. Nada do combate mudou — o `ATK-03` continua a ser a
+> mecânica de perícia que esta secção descreve.
+
 ### 5.4 Entrada dramática (`VIS-007`)
 
 | Elemento | Especificação |
@@ -409,6 +419,26 @@ O jogador **pode** continuar no mesmo save após a conclusão (GDD 1.9) — não
 | 3 | Transição para a arena passa a ser **checkpoint** | Sem isso, runback de 20 s por morte e `MEC-008` sem escopo | `PAT-LD-05`, `DEC-012` |
 | 4 | Bolsa cai na entrada da arena, não no ponto da morte | Recuperar bolsa com chefe ativo é inviável | `MEC-004`, `P-28` |
 | 5 | `ATK-02` (golpe de área) criado | Sem segundo ataque, a fase 2 seria "a mesma luta mais rápida" — sem novidade de leitura | `03-conteudo` §3.2 |
+
+## 12-A. Desvios de implementação (código)
+
+O setor está implementado e verificado (`npm run lvl03`). Estes são os pontos em que o código
+**não** seguiu o documento ao pé da letra — nenhum deles muda regra de jogo, só a forma.
+
+| # | O que o documento diz | O que o código faz | Por quê |
+|---|---|---|---|
+| I-1 | §4 desenha 4 salas com o `B` da arena na coluna 20 | `LevelBuilder` trata `B` como *spawn do chefe* e o remove da colisão | o `B` é marcador de posição, não tile sólido; mantê-lo criaria um bloco invisível no piso |
+| I-2 | §5.1 fala em clamp de bounds da arena | `Boss.clampTo(3·TILE, worldWidth − 2·TILE)` a cada quadro | a arena tem 24 tiles e o corpo tem 160 px; sem clamp a investida sai do mundo |
+| I-3 | §6 pede "pilar em 3 estados" (`CEN-021`) | o código tem **2** estados visuais (inteiro e ruína) e 1 de colisão (destruído) | a arte é placeholder procedural; o estado "rachado" depende do sprite final (`P-16`) |
+| I-4 | §5.3 diz que `ATK-03` rende 1200 ms de aturdimento | medido em **1144–1333 ms** no headless | o `time` do Phaser avança em passos grandes a ~9 FPS; a 60 Hz o valor cai em 1200 ms |
+| I-5 | §5.5 prevê a fala de entrada | o texto fica **1,8 s** em `game:text` e sai sozinho | `hold` sem timeout travava a tela se o jogador morresse durante a intro |
+| I-6 | `P-28` pergunta onde fica a bolsa | `ITM-004` entra em `GameScene.bag` (memória da sessão), **não** no save | o save de `MEC-007` ainda não tem campo de inventário; `P-28` continua aberta |
+| I-7 | §7 pede a oferta de `MEC-008` "após 3 mortes" | conta mortes **na arena** e só oferece degrau **mais fácil** (`hard→medium→easy`), recusável | subir dificuldade por morte seria punição, não misericórdia; `TST-008` cobre os dois caminhos |
+
+Consequência para o próximo agente: `I-3` e `I-6` são dívida de arte/inventário, não de regra;
+`I-4` é medição de ambiente, não divergência de tempo de jogo.
+
+---
 
 ## 12. Pendências geradas
 

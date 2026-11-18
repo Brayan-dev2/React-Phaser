@@ -744,6 +744,27 @@ O jogo termina em **silêncio funcional**, e ele é construído em três cortes:
 | 5 | **As baixas assinadas permanecem na morte** | O oposto de LVL-15. Sem vida, a única coisa que o jogador acumula é assinatura — e um formulário assinado não se desassina (§10.1) | `MEC-004`, `MEC-011` |
 | 6 | **Dois trilhas em sequência e nenhuma nos corredores** | `BGM-02` é o último clímax; `BGM-04` é do posto e não pode ser gasta antes. `bgm=none` é o precedente de LVL-07 (§8.1) | `06-audio` §4, `BGM-02`, `BGM-04` |
 | 7 | **`PAL-16` não pode carregar informação** | Medido: **2,04:1** contra `--bg` — reprova o mínimo de 3:1 para forma e 4,5:1 para texto do `02-paleta` §2.2. Só existe sobre `--bone` (6,80:1) | `PAL-16`, `VIS-004`, `TST-014` |
+| 8 | **O canal suspende o desgaste** | `MEC-011` pede 3.000 ms parado no posto e `CEN-113` abre um buraco em 2.000 ms: sem esta regra o canal era **impossível por aritmética**, e a única janela que o jogador abre sozinho no jogo ficaria fechada. Enquanto ele assina, o chão não cede — e **só** enquanto ele assina (§5.5 × §5.6) | `MEC-011`, `CEN-113`, §9 |
+| 9 | **`canSign` (começar) ≠ `canHold` (continuar)** | A folga de 1.200 ms é para **começar** o canal, não um corte no meio de um canal já em curso: quem abre aos 300 ms tem de poder terminar aos 3.300. Duas funções em `core/posto.ts` porque é a diferença entre "chegou tarde" e "perdeu no meio" | `MEC-011`, `core/posto.ts` |
+| 10 | **A barra do ocupante não usa `game:boss`** | Vida e **postura** são coisas diferentes, e reciclar o evento faria o HUD chamar de vida o que a luta inteira nega. Evento próprio (`game:posto`) com `BAIXAS n/3`, `role="progressbar"` e `aria-label="postura do ocupante"` (`UI-20`, `TST-018`) | `UI-20`, `DEC-019`, `TST-018` |
+
+### O que o código já resolveu (2026-11-13)
+
+| Pendência | Como o build resolve | Onde |
+|---|---|---|
+| 🟢 **`P-71`** — ficha de `ENT-008` | `PLANTONISTA` em `tuning.ts`: `damageable: false`, `kills: false`, **sem `hp`**, postura `[100, 125, 150]`, golpe 25, `staggerMs` 4.500 (300 + 3.000 + 1.200), `ATK-19` 18 na zona de 2 tiles, `ATK-20` máx. 2 vivas, `ATK-21` 22 na janela de 1.400, `leashX` 13. `AST-022` e `AST-023` continuam placeholder em `scenes/trono.ts` | `data/tuning.ts`, `core/posto.ts`, `entities/Plantonista.ts` |
+| 🟢 **`P-72`** (metade de código) | Os três desvios estão **implementados e testados**: chefe sem vida; saída por **baixa** (`onPlantonistaRendido`), nunca por 0 HP; piso destrutível com `maxAdjacent: 2`; e as baixas sobrevivem à morte (`resetPoise` não toca em `baixas`). O que falta é a **ratificação** do proprietário | `GameScene.onPlantonistaRendido`, `Plantonista.resetPoise` |
+| 🟢 **`P-73`** (metade de código) | `MEC-012` **encerra** o jogo: `tryThrone()` é idempotente, emite `game:end` **uma vez**, grava `completed`, e não há `newGamePlus` nem retorno ao mapa. Os créditos têm pausa e velocidade 1×/2× (`EndScreen.tsx`). Falta confirmar a política de save final | `GameScene.tryThrone`, `ui/components/EndScreen.tsx` |
+| 🟢 **`P-65`** — a sobra de `DEC-016` | **Resolvida em código:** `throneLocked()` devolve `false` e **nenhuma** sala de LVL-16 tem `locks`. A terceira chave não abre nada e o HUD continua `2/2`. A única coisa que resta é a ratificação do `DEC-016` | `core/posto.ts`, `lvl16.test.ts` |
+| 🆕 **`P-90`** | **`MEC-011` não tem indicador de canal.** O jogador segura `E` por 3.000 ms com a barra de postura em 0 e **nenhum anel de progresso** — só a dica `ATORDOADO · SEGURE E NO POSTO`. Legível, mas o canal é a coisa mais longa que o jogo pede; `UI-21` (anel de canal no mundo) fica para a arte | `UI-21`, `P-71` |
+| 🆕 **`P-91`** | **A suspensão do desgaste é invisível.** O jogador não tem como saber que o chão "parou" enquanto ele assina (desvio 8). A ideia é a rachadura **congelar** visivelmente — animação, não lógica | `CEN-113`, `P-71` |
+| 🆕 **`P-92`** | **`AMB-16` não existe como áudio**, como `AMB-15`. O zumbido, o estalo da rachadura e o trono rangendo são **nomes** no build; o setor é mudo. É a mesma dívida de `P-83`/`P-85`/`P-89` — e, no fim, a que mais custa: o último som do jogo é o único que o jogo promete explicitamente (§7.3) | `06-audio` §6.2, `AMB-16` |
+| 🆕 **`P-93`** | **`BGM-02`/`BGM-04` são toasts, não áudio.** O build anuncia `BGM-02 · O POSTO` e `BGM-04 · O TRONO` no HUD; nenhuma das duas toca, e nenhuma faz o fade de 6 s de `MEC-012`. Quando o áudio entrar, o *ducking* de −20% (§8.3) é a peça a implementar | `06-audio` §4, §6.3 |
+| 🆕 **`P-94`** | **`TST-018` ficou em três ficheiros**, não num teste único: `core/posto.test.ts` (regra), `lvl16.test.ts` (geometria e números) e `tests/lvl16.mjs` (runtime). Um teste de `.tmj` que reprove grade que abra por morte (`TST-018` como `AGT-07` pediu) continua pendente do pipeline de Tiled | `TST-018`, `AGT-07`, `BKL-012` |
+
+> **A regra que ficou escrita no código, e não só no documento:** `Plantonista` **não tem** o campo
+> `hp`. Nenhuma função de `core/posto.ts` devolve dano. Um `grep -r "plantonista.*takeHit"` no
+> repositório não encontra nada — e é assim que o sexto chefe deixa de ser o primeiro outra vez.
 
 ---
 
