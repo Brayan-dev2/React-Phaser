@@ -1,0 +1,846 @@
+/* PAL-00 — 02-paleta-tipografia-e-ui. Nenhuma cor fora destes tokens. */
+:root {
+  --ink: #0B0910; --bg: #15131F; --mass: #2A2433; --stone: #464052;
+  --bone: #E6DFD2; --threat: #D95555; --gold: #F2C66D; --text: #F8F7F2;
+  --font: ui-monospace, 'SFMono-Regular', 'Roboto Mono', Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--ink); color: var(--text); font-family: var(--font);
+  -webkit-font-smoothing: antialiased; overflow: hidden;
+}
+.shell { height: 100%; display: flex; flex-direction: column; }
+.stage { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; background: var(--ink); }
+.game-host { position: absolute; inset: 0; }
+.game-host canvas { display: block; width: 100% !important; height: 100% !important; object-fit: contain; }
+
+/* ---------- HUD ---------- */
+.hud {
+  position: absolute; inset: 0; pointer-events: none;
+  padding: 12px 16px; display: flex; justify-content: space-between; align-items: flex-start;
+  font-size: 11px; letter-spacing: .08em;
+}
+.hud__left { display: grid; gap: 5px; width: min(300px, 48vw); }
+.bar { display: grid; grid-template-columns: 64px 1fr 30px; gap: 8px; align-items: center; color: var(--bone); }
+.bar__label { color: var(--bone); opacity: .62; }
+.bar__track { height: 8px; background: var(--mass); border: 1px solid var(--stone); }
+.bar__fill { display: block; height: 100%; transition: width .12s linear; }
+.bar__value { text-align: right; color: var(--bone); }
+.hud__right { display: flex; gap: 10px; align-items: center; }
+.hud__room { color: var(--bone); }
+.hud__counter { color: var(--stone); }
+.hud__btn {
+  pointer-events: auto; background: transparent; color: var(--bone); border: 1px solid var(--stone);
+  font-family: var(--font); font-size: 11px; padding: 4px 8px; cursor: pointer;
+}
+.hud__btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ---------- aviso da morte (MEC-004, DEC-037) ---------- */
+.morte {
+  position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+  min-width: 240px; max-width: min(420px, 80vw);
+  border: 1px solid var(--threat); background: rgba(21, 19, 31, .95);
+  padding: 10px 14px; z-index: 24; pointer-events: none;
+  display: grid; gap: 4px;
+}
+.morte__titulo { margin: 0; color: var(--threat); letter-spacing: .2em; font-size: 11px; }
+.morte__lista { margin: 0; padding-left: 14px; color: var(--bone); font-size: 11px; line-height: 1.7; }
+.morte__nada { margin: 0; color: var(--bone); font-size: 11px; letter-spacing: .12em; }
+.morte__preso { margin: 0; color: var(--gold); font-size: 10px; letter-spacing: .1em; }
+.morte__bolsa { margin: 0; color: var(--bone); font-size: 10px; letter-spacing: .1em; }
+.morte__perdida { margin: 0; color: var(--threat); font-size: 10px; letter-spacing: .1em; }
+.hud__counter--bolsa { color: var(--bone); }
+.hud__counter--aqui { color: var(--gold); }
+.morte__nota { margin: 2px 0 0; color: var(--stone); font-size: 10px; letter-spacing: .1em; }
+.hud__counter--moedas { color: var(--gold); }
+
+.panel__row { display: flex; gap: 8px; margin-top: 10px; }
+.panel__btn--ghost { background: transparent; color: var(--bone); }
+
+/* ---------- mochila (UI-07, MEC-004) ---------- */
+.hud__btn--mochila { display: inline-flex; align-items: center; gap: 5px; padding: 3px 6px; }
+.hud__btn--cheia { border-color: var(--gold); color: var(--gold); }
+.hud__badge {
+  font-size: 10px; letter-spacing: .06em; border: 1px solid currentColor;
+  padding: 0 3px; line-height: 1.4;
+}
+
+/*
+ * `UI-07` / `DEC-040` — a mochila e o baú **lado a lado**: metade da tela para cada um.
+ *
+ * O painel deixa de ser uma caixa centrada e passa a ser o **ecrã inteiro** dividido a meio. A
+ * divisão é fixa (mochila à esquerda, baú à direita) porque o gesto é sempre passar de um lado para
+ * o outro: se o lado mudasse, o jogador procurava as suas coisas no sítio errado. Abaixo de 900 px
+ * a divisão fica 58/42 em vez de 50/50 — com quarenta células em cada metade, 50/50 em tela pequena
+ * dava células abaixo do alvo de toque de 44 px (`§4.6`).
+ */
+.panel--mochila {
+  z-index: 30; place-items: stretch; padding: 10px;
+  /* duas linhas: as metades e **o aviso**, que assim tem lugar próprio e não passa por cima do
+     pé do baú (era o que acontecia com o aviso absoluto: `+40 MOEDAS` caía em cima do botão) */
+  display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 6px;
+  /*
+   * `DEC-040` — as duas metades usam **o mesmo modelo de linhas**: cabeçalho · ordens · grelha ·
+   * detalhe (`1fr`) · pé (`--pe`, fixo). Duas alturas fixas em vez de duas naturais, e por isso a
+   * ficha da mochila e a ficha do baú começam **e acabam** no mesmo pixel, e os dois pés assentam
+   * na mesma linha. Era isto que faltava: com blocos de altura natural, cada metade esticava até
+   * onde o seu texto ia e o pé saltava de um lado para o outro.
+   */
+  --detalhe-min: 120px;
+  --pe: 118px;
+}
+.mochila__metades {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  min-height: 0; width: 100%; height: 100%;
+}
+/*
+ * As duas metades têm o **mesmo modelo de linhas**: cabeçalho · ordens · grelha · detalhe · pé.
+ *
+ * A quarta linha é `1fr` e a quinta é `auto`: como as grelhas das duas metades têm a mesma altura
+ * (40 espaços, 5 linhas) e o painel estica as duas à mesma altura total, o **detalhe fica com a
+ * mesma altura dos dois lados** e o **pé das duas metades fica no mesmo pixel**. Era isto que
+ * faltava: com blocos de altura natural, a ficha da mochila e a ficha do baú acabavam em sítios
+ * diferentes e o pé saltava entre os dois lados (`DEC-040`).
+ */
+.mochila__lado {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(var(--detalhe-min), 1fr) var(--pe);
+  align-content: stretch; gap: 8px;
+  border: 1px solid var(--stone); background: var(--bg);
+  padding: 12px 14px; overflow: hidden; min-height: 0;
+}
+/* um detalhe comprido rola **dentro da sua moldura**: a moldura é a que alinha, o texto não a move */
+.mochila__detalhe, .bau__detalhe { overflow: auto; min-height: 0; }
+.mochila__lado--mochila { border-top: 2px solid var(--gold); }
+/* a metade direita é uma `<section class="bau">`: ela é que estica, e é ela que usa as cinco linhas */
+.mochila__lado--bau { grid-template-rows: minmax(0, 1fr); }
+.mochila__lado--bau { border-top: 2px solid var(--gold); }
+.mochila__lado--fechado {
+  /* sem baú ao alcance a metade continua lá (o painel não muda de forma quando o herói se
+     aproxima); só o conteúdo é uma nota */
+  align-content: center; justify-items: center;
+}
+.mochila__lado-vazio { display: grid; place-items: center; max-width: 34ch; }
+
+.mochila__topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.mochila__marca {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--gold); letter-spacing: .18em; font-size: 12px;
+}
+.mochila__contadores { color: var(--stone); font-size: 11px; letter-spacing: .12em; }
+.mochila__sep { padding: 0 6px; opacity: .6; }
+
+/* ---------- ferramentas: ordenar ---------- */
+.mochila__ordens {
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  border-top: 1px solid var(--stone); border-bottom: 1px solid var(--stone); padding: 5px 0;
+}
+.mochila__ordens-rotulo { color: var(--stone); font-size: 10px; letter-spacing: .14em; margin-right: 4px; }
+.mochila__ordem {
+  background: transparent; color: var(--stone); border: 1px solid var(--stone);
+  font-family: var(--font); font-size: 10px; letter-spacing: .1em; padding: 3px 6px; cursor: pointer;
+}
+.mochila__ordem:hover { border-color: var(--bone); color: var(--bone); }
+.mochila__ordem--ativa { border-color: var(--gold); color: var(--gold); }
+
+/* ---------- ferramentas: quantidade ---------- */
+.mochila__passo {
+  display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--stone);
+}
+.mochila__passo-btn {
+  width: 26px; height: 26px; background: transparent; color: var(--bone);
+  border: 0; font-family: var(--font); font-size: 13px; cursor: pointer; line-height: 1;
+}
+.mochila__passo-btn:disabled { color: var(--stone); cursor: default; }
+.mochila__passo-btn:not(:disabled):hover { color: var(--gold); }
+.mochila__passo-valor {
+  min-width: 34px; text-align: center; color: var(--gold); font-size: 12px;
+  border-left: 1px solid var(--stone); border-right: 1px solid var(--stone); line-height: 26px;
+}
+.mochila__transferir { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.mochila__transferir .panel__btn { margin-top: 0; }
+
+.mochila__grade {
+  /* célula quadrada: 8 colunas cabem na metade esquerda e ficam acima dos 44 px de toque (`§4.6`) */
+  display: grid; gap: 5px; outline: none; justify-content: start; grid-auto-rows: minmax(38px, auto);
+}
+.mochila__celula {
+  /* `§4.6`: área de toque ≥ 44 × 44 px — a célula é um botão, e é o alvo mais pequeno da UI */
+  position: relative; min-height: 44px; display: grid; place-items: center;
+  background: var(--bg); border: 1px solid var(--stone); color: var(--stone);
+  font-family: var(--font); cursor: pointer; padding: 0;
+}
+.mochila__celula--cheia { color: var(--bone); border-color: var(--stone); background: var(--mass); }
+.mochila__celula--presa { border-color: var(--gold); }
+.mochila__celula--sel { outline: 2px solid var(--gold); outline-offset: 1px; }
+.mochila__celula:hover { border-color: var(--bone); }
+.mochila__ponto { width: 3px; height: 3px; background: var(--stone); opacity: .5; }
+.mochila__alfinete {
+  position: absolute; top: 1px; right: 3px; font-size: 8px; color: var(--gold);
+}
+
+.mochila__detalhe {
+  border-top: 1px solid var(--stone); padding-top: 8px; display: grid; gap: 4px;
+  align-content: start;
+}
+.mochila__nome {
+  margin: 0; color: var(--bone); font-size: 12px; letter-spacing: .14em;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.mochila__etiqueta {
+  font-size: 10px; letter-spacing: .12em; border: 1px solid var(--stone);
+  color: var(--stone); padding: 0 4px;
+}
+.mochila__etiqueta--presa { border-color: var(--gold); color: var(--gold); }
+.mochila__etiqueta--conta { border-color: var(--bone); color: var(--bone); }
+.mochila__ficha { margin: 0; color: var(--gold); font-size: 10px; letter-spacing: .12em; }
+.mochila__aviso {
+  margin: 0; color: var(--gold); font-size: 11px; letter-spacing: .12em;
+  min-height: 14px; text-align: center; pointer-events: none;
+}
+.mochila__nota {
+  margin: 0; color: var(--stone); font-size: 10px; letter-spacing: .1em; line-height: 1.6;
+  text-align: center;
+}
+
+/* ---------- baú das salas seguras (UI-07) ---------- */
+.bau {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(var(--detalhe-min), 1fr) var(--pe);
+  gap: 8px; align-content: stretch; min-height: 0; height: 100%;
+}
+.bau__topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.bau__marca {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--gold); letter-spacing: .18em; font-size: 11px;
+}
+.bau__contadores { color: var(--stone); font-size: 10px; letter-spacing: .1em; }
+.bau__linha { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+.bau__linha .mochila__celula { min-height: 44px; }
+.bau__vazio {
+  grid-column: 1 / -1; color: var(--stone); font-size: 10px; letter-spacing: .1em;
+}
+.bau__detalhe {
+  border-top: 1px solid var(--stone); border-bottom: 1px solid var(--stone);
+  padding: 8px 0; display: grid; gap: 4px; align-content: start;
+}
+.bau__acoes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bau__acoes .panel__btn { margin-top: 0; }
+/* o pé da metade direita: uma conta, uma linha de botões, os dois "tudo" — o mais baixo possível */
+.bau__pe {
+  display: grid; gap: 6px; border-top: 1px solid var(--stone); padding-top: 8px;
+  align-content: end; align-self: end;
+}
+.bau__moedas { display: grid; gap: 4px; }
+.bau__moedas-conta {
+  margin: 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline;
+  color: var(--stone); font-size: 11px; letter-spacing: .12em;
+}
+.bau__moedas-conta b { color: var(--gold); font-weight: normal; }
+.bau__moedas-nota { color: var(--stone); opacity: .8; font-size: 10px; }
+.bau__moedas .mochila__transferir { margin-top: 0; flex-wrap: wrap; gap: 6px; }
+/* quatro botões numa linha de 600 px: sem isto, "GUARDAR 1" partia-se em duas linhas */
+.bau__moedas .panel__btn, .bau__tudo .panel__btn {
+  white-space: nowrap; font-size: 10px; padding: 6px 8px;
+}
+.bau__tudo { display: flex; gap: 8px; flex-wrap: wrap; }
+.bau__tudo .panel__btn { margin-top: 0; }
+
+.mochila__rodape {
+  display: flex; gap: 14px; flex-wrap: wrap; align-self: end; align-items: end;
+  color: var(--stone); font-size: 10px; letter-spacing: .1em;
+}
+.mochila__rodape b { color: var(--bone); }
+
+/* tela estreita: a divisão deixa de ser a meio e passa a 58/42 — 40 células em 50 % de 900 px
+   davam alvos abaixo dos 44 px de `§4.6` */
+@media (max-width: 900px) {
+  .mochila__metades { grid-template-columns: 1.4fr 1fr; }
+  .mochila__lado { padding: 8px 10px; }
+}
+
+/* Ecrã baixo (`< 660 px`): alinhar ao pixel obrigaria a espremer as células abaixo dos 44 px de
+   `§4.6`. Aqui o alinhamento cede — cada metade volta ao fluxo natural e ganha a sua rolagem, e o
+   pé fica onde o conteúdo o deixar. É o único caso em que as duas metades não coincidem. */
+@media (max-height: 660px) {
+  .mochila__lado, .bau { grid-template-rows: auto; align-content: start; }
+  /* sem altura imposta, cada bloco volta a medir o seu conteúdo (senão o detalhe era espremido
+     por dentro e o texto saía por cima do pé) */
+  .bau { height: auto; }
+  .mochila__lado { overflow: auto; }
+  /* o detalhe volta a medir o seu conteúdo (`auto`; o `0` da regra base deixava-o colapsar e o
+     texto saía por cima do pé). Quem não couber, rola na metade inteira. */
+  .mochila__detalhe, .bau__detalhe { overflow: visible; min-height: auto; }
+}
+
+/* ---------- fôlego (LVL-06, HAB-06) ---------- */
+.breath {
+  position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%);
+  width: min(280px, 40vw); display: grid; grid-template-columns: 56px 1fr 34px;
+  gap: 8px; align-items: center; font-size: 11px; letter-spacing: .12em;
+  color: var(--bone); pointer-events: none;
+}
+.breath__track { height: 8px; background: var(--mass); border: 1px solid var(--stone); }
+.breath__fill { display: block; height: 100%; background: #8c7bc7; transition: width .12s linear; }
+.breath--low .breath__fill { background: var(--threat); }
+.breath__value { text-align: right; }
+
+/* ---------- relatório de sessão (playtest) ---------- */
+.report { margin-top: 12px; border-top: 1px solid var(--stone); padding-top: 10px; }
+.report__caption { text-align: left; font-size: 11px; letter-spacing: .16em; color: var(--accent01); padding-bottom: 6px; }
+.report__table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.report__table th { text-align: left; font-weight: 400; color: rgba(230, 223, 210, .62); padding: 2px 10px 2px 0; white-space: nowrap; }
+.report__table td { padding: 2px 0; color: var(--bone); }
+.report__actions { margin-top: 10px; }
+
+/* ---------- barra do chefe (VIS-007) ---------- */
+.bossbar {
+  position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+  width: min(520px, 60vw); display: grid; gap: 4px; text-align: center;
+  pointer-events: none;
+}
+.bossbar__name { font-size: 11px; letter-spacing: .16em; color: var(--bone); }
+.bossbar__track { height: 10px; background: var(--mass); border: 1px solid var(--stone); }
+.bossbar__fill { display: block; height: 100%; background: var(--threat); transition: width .18s linear; }
+.bossbar__phase { font-size: 10px; letter-spacing: .18em; color: var(--accent01); }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- painel de senha (MEC-006) ---------- */
+.panel__inner--wide { max-width: 520px; }
+.glyph-row { display: flex; gap: 10px; justify-content: center; margin: 14px 0 6px; }
+.glyph {
+  width: 62px; height: 62px; display: grid; place-items: center;
+  background: var(--mass); color: var(--bone);
+  border: 1px solid var(--stone); cursor: pointer; padding: 0;
+}
+.glyph:hover { border-color: var(--gold); color: var(--gold); }
+.glyph--slot { cursor: default; color: var(--stone); background: transparent; border-style: dashed; }
+.glyph--slot em { font-style: normal; font-size: 13px; }
+.glyph--filled { color: var(--gold); border-style: solid; border-color: var(--gold); }
+.panel__actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+.shake { animation: shake .28s linear 1; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* ---------- painéis ---------- */
+.panel {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: rgba(11, 9, 16, .82); backdrop-filter: blur(2px); z-index: 20;
+}
+.panel--text { background: rgba(11, 9, 16, .68); }
+.panel__inner {
+  max-width: min(560px, 86vw); padding: 24px 28px; border: 1px solid var(--stone);
+  background: var(--bg); display: grid; gap: 8px;
+}
+.panel__title { margin: 0 0 4px; color: var(--gold); letter-spacing: .16em; font-size: 13px; }
+.panel__line { margin: 0; color: var(--bone); font-size: 12px; line-height: 1.6; }
+.panel__muted { margin: 6px 0 0; color: var(--stone); font-size: 11px; }
+.panel__btn {
+  margin-top: 12px; background: transparent; border: 1px solid var(--gold); color: var(--gold);
+  font-family: var(--font); font-size: 12px; letter-spacing: .12em; padding: 9px 14px; cursor: pointer;
+}
+.panel__btn:hover { background: var(--gold); color: var(--ink); }
+.panel__btn:focus-visible { outline: 2px solid var(--bone); outline-offset: 2px; }
+.keys { margin: 6px 0 0; padding-left: 16px; color: var(--bone); font-size: 11px; line-height: 1.9; }
+.keys b { color: var(--gold); }
+
+.toast {
+  position: absolute; left: 50%; bottom: 18%; transform: translateX(-50%);
+  border: 1px solid var(--gold); color: var(--gold); background: rgba(21,19,31,.94);
+  padding: 7px 14px; font-size: 11px; letter-spacing: .18em; z-index: 25;
+}
+
+.foot {
+  display: flex; justify-content: space-between; gap: 16px; padding: 7px 16px;
+  border-top: 1px solid var(--mass); color: var(--stone); font-size: 10px; letter-spacing: .06em;
+  background: var(--bg);
+}
+.foot b { color: var(--bone); font-weight: 600; }
+.foot em { color: var(--gold); font-style: normal; }
+@media (max-width: 720px) { .foot { display: none; } }
+
+/* ---------------------------------------------------------------
+   `LVL-16` §5.5 (`UI-20`) — a barra do ocupante é de POSTURA, não de vida.
+   O acento `PAL-16` vinho NÃO pode carregar informação (§13, desvio 7): mede 2,04:1
+   contra `--bg`. Aqui ele só tinge o preenchimento sobre `--mass`, e o texto diz
+   "BAIXAS n/3" por extenso — a cor não é a única pista.
+   --------------------------------------------------------------- */
+.postobar {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 4px; align-items: center;
+  min-width: 320px; pointer-events: none;
+}
+.postobar__name { font-size: 11px; letter-spacing: .18em; color: var(--bone); }
+.postobar__baixas { font-size: 11px; letter-spacing: .2em; color: var(--text); }
+.postobar__track {
+  width: 320px; height: 10px; background: var(--mass); border: 1px solid var(--stone);
+}
+.postobar__fill {
+  display: block; height: 100%; background: #7B2E4A; transition: width .18s linear;
+}
+.postobar--stagger .postobar__fill { background: var(--threat); }
+.postobar--stagger .postobar__hint { color: var(--threat); }
+.postobar__hint { font-size: 10px; letter-spacing: .16em; color: var(--bone); }
+
+/* `MEC-012` §7.4 — o crachá: 3 linhas, e a última assina com quem está lendo. */
+.panel__inner--end { align-items: center; text-align: center; }
+.badge { list-style: none; padding: 14px 22px; margin: 10px 0; border: 1px solid var(--stone); background: var(--bone); }
+.badge__line { color: #0B0910; font-size: 12px; letter-spacing: .22em; line-height: 1.8; }
+.badge__line:first-child { border-bottom: 2px solid #7B2E4A; }
+.creditos { display: flex; flex-direction: column; gap: 6px; align-items: center; margin-top: 10px; }
+
+/* ---------------------------------------------------------------
+   `UI-02` — a tela inicial (`04-interface` §4.1, §4.2, §4.4, §4.6).
+
+   **Nada de arte aqui.** `.menu__cena` é a área reservada à arte de abertura em parallax: ocupa
+   o ecrã inteiro, e é onde a arte vai entrar — o menu fica **por cima** dela, num painel com
+   véu escuro para o texto continuar legível sobre qualquer imagem. Trocar a reserva pela arte
+   não desloca um único item.
+
+   Contraste: os itens usam `--bone` sobre o véu `rgba(10,9,14,.86)` (≈13:1) e o texto
+   secundário `--bone` a 0,72 (≈8:1). O `--stone` (3,4:1) ficou só em decoração. O foco é
+   **borda + barra à esquerda**, não cor — quem não distingue cor vê a marca de posição (§4.6).
+   --------------------------------------------------------------- */
+.shell--menu {
+  position: relative; overflow: hidden; background: var(--ink);
+}
+.menu {
+  position: relative; width: 100%; min-height: 100vh; display: grid; place-items: center;
+  padding: 18px 0;
+}
+.menu--carregando { color: var(--stone); text-align: center; }
+
+/* --- a área da arte de abertura: ecrã inteiro, reservada, vazia de propósito --- */
+.menu__cena {
+  position: absolute; inset: 0; display: grid; place-items: center; gap: 18px;
+  background: radial-gradient(circle at 50% 42%, #1b1826 0%, var(--ink) 64%);
+  border: 1px dashed rgba(70, 64, 82, .55);
+}
+/* com o menu aberto, a mesma cena fica atrás e mais discreta: ela é o fundo, não o assunto */
+.menu__cena--fundo { opacity: .9; }
+.menu__cena-etiqueta {
+  position: absolute; right: 14px; bottom: 12px;
+  color: var(--stone); font-size: 10px; letter-spacing: .26em; text-align: right;
+}
+.menu__press {
+  margin: 0; color: var(--bone); font-size: 13px; letter-spacing: .34em;
+  animation: pulsar 2.4s ease-in-out infinite;
+}
+@keyframes pulsar { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+/* `reduce_motion` (§4.6): o "PRESSIONE" não pisca — ele só existe */
+@media (prefers-reduced-motion: reduce) {
+  .menu__press { animation: none; opacity: .9; }
+}
+
+/* --- o menu por cima da cena: véu escuro, para a arte não comer o texto --- */
+/* o painel tem **teto de altura e rola**: a lista de atalhos tem dez linhas e não pode empurrar
+   o rodapé para fora do ecrã (`§4.6`: texto ampliado não pode esconder o que se escolhe) */
+.menu__corpo {
+  position: relative; z-index: 1; width: min(700px, 92vw); display: grid; gap: 10px;
+  padding: 22px 24px; background: rgba(10, 9, 14, .86);
+  border: 1px solid rgba(70, 64, 82, .7);
+  max-height: calc(100vh - 36px); overflow-y: auto; overscroll-behavior: contain;
+}
+.menu__migalha { margin: 0; color: var(--gold); font-size: 10px; letter-spacing: .34em; }
+.menu__erro { margin: 0; color: var(--threat); font-size: 12px; letter-spacing: .1em; }
+.menu__acoes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+.menu__acao {
+  width: 100%; min-height: 44px; display: grid; gap: 3px; align-content: center;
+  text-align: left; cursor: pointer;
+  background: transparent; color: var(--bone); font-family: var(--font);
+  border: 1px solid transparent; border-left: 3px solid transparent;
+  padding: 10px 12px;
+}
+.menu__acao:hover { background: rgba(70, 64, 82, .18); }
+/* o foco é **forma**, não cor: barra à esquerda + borda. Serve para teclado e para rato. */
+.menu__acao[data-foco='true'] {
+  border-color: var(--stone); border-left: 3px solid var(--gold);
+  background: rgba(70, 64, 82, .26);
+}
+/* `Tab` precisa de ver onde está: o anel substitui a borda do cursor, em vez de a duplicar */
+.menu__acao:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.menu__acao-rotulo { font-size: 14px; letter-spacing: .24em; }
+.menu__acao-detalhe { font-size: 11px; letter-spacing: .06em; color: var(--bone); opacity: .72; }
+
+/* --- painéis: saída, saves, configurações, créditos --- */
+.menu__painel {
+  border: 1px solid var(--stone); padding: 14px 16px; display: grid; gap: 10px;
+  background: rgba(10, 9, 14, .55);
+}
+.menu__painel-titulo { margin: 0; font-size: 12px; letter-spacing: .22em; color: var(--gold); }
+.menu__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+
+/* uma **linha** de painel: rótulo à esquerda, valor à direita, linha inteira clicável */
+.menu__linha {
+  width: 100%; min-height: 44px; display: grid; gap: 2px; text-align: left; cursor: pointer;
+  background: transparent; color: var(--bone); font-family: var(--font); font-size: 12px;
+  border: 1px solid transparent; border-left: 3px solid transparent; padding: 8px 10px;
+}
+.menu__linha-rotulo { letter-spacing: .18em; }
+.menu__linha-valor {
+  color: var(--gold); font-size: 12px; letter-spacing: .16em;
+  display: flex; align-items: center; gap: 8px;
+}
+.menu__linha[data-foco='true'] {
+  border-color: var(--stone); border-left: 3px solid var(--gold);
+  background: rgba(70, 64, 82, .26);
+}
+.menu__linha:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+/* slot vazio: existe na lista (é informação), mas não é uma escolha */
+.menu__linha--vazia { opacity: .55; cursor: default; }
+.menu__linha--save { gap: 4px; }
+
+/* volume em dez quadrados: a mesma informação do número, legível sem ler o número */
+.menu__trilha { display: inline-flex; gap: 2px; }
+.menu__trilha-pc {
+  width: 7px; height: 12px; background: rgba(70, 64, 82, .9); display: inline-block;
+}
+.menu__trilha-pc--on { background: var(--gold); }
+
+.menu__dica { margin: 0; font-size: 11px; color: var(--bone); opacity: .78; }
+.menu__aviso { margin: 0; font-size: 11px; letter-spacing: .1em; color: var(--gold); }
+.menu__voltar, .menu__comecar {
+  justify-self: start; min-height: 44px; min-width: 44px; cursor: pointer;
+  font-family: var(--font); font-size: 11px; letter-spacing: .2em; padding: 8px 16px;
+  background: transparent; color: var(--bone); border: 1px solid var(--stone);
+}
+.menu__comecar { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+.menu__voltar:focus-visible, .menu__comecar:focus-visible,
+.menu__linha:focus-visible, .menu__acao:focus-visible { outline: 2px solid var(--gold); }
+
+/* créditos: o nome em cima, a função, e o que ficou feito */
+.menu__credito-nome { margin: 0; font-size: 20px; letter-spacing: .18em; color: var(--bone); }
+.menu__credito-funcao { margin: 0; font-size: 11px; letter-spacing: .3em; color: var(--gold); }
+.menu__credito-linhas {
+  margin: 0; padding-left: 16px; display: grid; gap: 4px;
+  font-size: 11px; color: var(--bone); opacity: .8;
+}
+.menu__rodape {
+  margin: 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+  font-size: 10px; letter-spacing: .12em; color: var(--stone);
+}
+
+/* em paisagem curta (720 px de altura) o painel encolhe para o menu caber inteiro */
+@media (max-height: 720px) {
+  .menu__corpo { padding: 14px 16px; gap: 8px; }
+  .menu__acao { padding: 7px 10px; }
+  .menu__linha { padding: 6px 9px; }
+}
+
+/* ---------------------------------------------------------------
+   `§4.6` — legendas do que só se ouviria. Ficam acima do rodapé, centradas, e não tapam o HUD.
+   --------------------------------------------------------------- */
+.legenda {
+  position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px; max-width: min(760px, 86vw);
+  padding: 8px 14px; background: rgba(10, 9, 14, .9); border-left: 3px solid var(--stone);
+  color: var(--bone); font-size: 12px; letter-spacing: .06em;
+}
+.legenda__marca { color: var(--gold); font-size: 12px; }
+.legenda--perigo { border-left-color: var(--threat); }
+.legenda--perigo .legenda__marca { color: var(--threat); }
+.legenda--marco { border-left-color: var(--gold); }
+@media (prefers-reduced-motion: reduce) { .legenda { transition: none; } }
+
+/* ---------------------------------------------------------------
+   `UI-02` · tipo de controle **TOQUE** (§4.4). Só existe quando escolhido nas configurações.
+   Botões ≥ 44 × 44 px, foco visível, e `pointerdown` em vez de `click`: andar é segurar.
+   --------------------------------------------------------------- */
+.toque {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 12px 16px 18px; pointer-events: none;
+}
+.toque__lado { display: flex; gap: 10px; align-items: flex-end; pointer-events: auto; }
+.toque__btn {
+  min-width: 56px; min-height: 56px; padding: 0 10px; cursor: pointer;
+  font-family: var(--font); font-size: 11px; letter-spacing: .12em;
+  color: var(--bone); background: rgba(10, 9, 14, .62);
+  border: 1px solid var(--stone); border-radius: 8px;
+  touch-action: none; user-select: none;
+}
+.toque__btn--dir { font-size: 18px; }
+.toque__btn--pular, .toque__btn--acao { min-height: 64px; border-color: var(--gold); color: var(--gold); }
+.toque__btn--pequeno { min-width: 44px; font-size: 9px; }
+.toque__btn:active { background: rgba(70, 64, 82, .7); }
+.toque__btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------
+   `UI-12` — criação de personagem (`04-interface` §4.2.2). Lista de sete escolhas à esquerda,
+   prévia à direita; em ecrã estreito a prévia passa para cima da lista.
+   `§4.6`: cada linha ≥ 44 px, foco por borda + barra, e a prévia tem nome acessível (o `aria-label`
+   do SVG descreve o personagem inteiro, em texto).
+   --------------------------------------------------------------- */
+.pers { gap: 12px; }
+.pers__corpo {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start;
+}
+.pers__lista { min-width: 0; }
+.pers__cor { width: 14px; height: 14px; border: 1px solid; display: inline-block; }
+.pers__setas { color: var(--stone); font-size: 9px; letter-spacing: .2em; }
+/* o grupo em foco diz que ←/→ mexem nele */
+.menu__linha[data-foco='true'] .pers__setas { color: var(--gold); }
+
+.pers__previa { display: grid; justify-items: center; gap: 6px; }
+.previa { display: block; }
+.pers__previa-rotulo {
+  margin: 0; font-size: 9px; letter-spacing: .24em; color: var(--stone); text-align: center;
+}
+
+/* atalhos de valor do grupo em foco: os mesmos que ←/→ percorrem, para o rato */
+.pers__opcoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.pers__acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 720px) {
+  .pers__corpo { grid-template-columns: 1fr; }
+  .pers__previa { grid-row: 1; }
+  .previa { width: 160px; height: auto; }
+}
+
+/* `UI-12`: o nome é a única linha que se escreve. O campo é um `input` de verdade (teclado
+   móvel e leitor de ecrã funcionam), desenhado como as outras linhas. */
+.pers__nome {
+  width: 100%; min-height: 28px; padding: 2px 0;
+  background: transparent; border: none; border-bottom: 1px dashed var(--stone);
+  color: var(--gold); font-family: var(--font); font-size: 12px; letter-spacing: .18em;
+}
+.pers__nome:focus { outline: none; border-bottom-color: var(--gold); }
+.pers__nome::placeholder { color: var(--stone); }
+
+/* ---------- UI-13 · INTRODUÇÃO (entre a criação do personagem e a primeira sala) ---------- */
+/* dois blocos lado a lado: a área da arte (esquerda) e o texto (direita). Em ecrã estreito o
+   texto passa para baixo — a arte é a primeira a ceder espaço, nunca o texto. */
+/* o conjunto inteiro é centrado e tem **teto de altura**: a arte não pode ser um corredor vazio
+   ao lado de um texto curto, e as duas colunas acabam no mesmo sítio em qualquer ecrã */
+.historia {
+  position: relative; min-height: 100vh; width: 100%;
+  display: grid; align-content: center; justify-content: center;
+  grid-template-columns: minmax(0, 720px) minmax(380px, 520px);
+  grid-auto-rows: minmax(0, min(640px, calc(100vh - 60px)));
+  gap: 18px; padding: 28px; background: var(--ink);
+}
+.historia__arte {
+  position: relative; height: 100%;
+  border: 1px dashed rgba(70, 64, 82, .55);
+  background: radial-gradient(circle at 50% 45%, #1b1826 0%, var(--ink) 68%);
+}
+.historia__arte-etiqueta {
+  position: absolute; right: 12px; bottom: 10px;
+  color: var(--stone); font-size: 10px; letter-spacing: .26em;
+}
+.historia__corpo {
+  display: grid; gap: 14px; align-content: center; height: 100%;
+  padding: 22px 24px; background: rgba(10, 9, 14, .86);
+  border: 1px solid rgba(70, 64, 82, .7);
+  max-height: calc(100vh - 52px); overflow-y: auto; overscroll-behavior: contain;
+}
+.historia__migalha { margin: 0; color: var(--gold); font-size: 10px; letter-spacing: .34em; }
+.historia__texto { display: grid; gap: 10px; }
+.historia__titulo { margin: 0; font-size: 26px; letter-spacing: .16em; color: var(--bone); }
+.historia__linha {
+  margin: 0; font-size: 15px; line-height: 1.65; color: var(--text); max-width: 46ch;
+}
+.historia__acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.historia__botao {
+  min-height: 44px; min-width: 44px; cursor: pointer; padding: 10px 14px;
+  font-family: var(--font); font-size: 11px; letter-spacing: .12em;
+  background: transparent; color: var(--bone); border: 1px solid var(--stone);
+}
+.historia__botao--principal { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+.historia__botao:disabled { opacity: .4; cursor: default; }
+.historia__botao:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.historia__dica { margin: 0; font-size: 11px; color: var(--bone); opacity: .6; }
+
+/* a troca de quadro é a única animação: e ela não existe para quem pediu menos movimento */
+@media (prefers-reduced-motion: no-preference) {
+  .historia__texto { animation: historia-entra .28s ease-out both; }
+  @keyframes historia-entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+}
+@media (max-width: 900px) {
+  .historia { grid-template-columns: 1fr; grid-auto-rows: auto; padding: 14px; }
+  .historia__arte { min-height: 160px; }
+  .historia__corpo { height: auto; max-height: none; }
+}
+@media (max-height: 720px) {
+  .historia { padding: 16px; gap: 12px; }
+  .historia__corpo { padding: 14px 16px; gap: 10px; }
+  .historia__titulo { font-size: 20px; }
+  .historia__linha { font-size: 13px; }
+}
+
+/* ---------- painel das habilidades (UI-14, DEC-041) ---------- */
+.panel--habilidades { z-index: 31; }
+.panel--habilidades .panel__inner {
+  width: min(720px, 94vw); max-width: min(720px, 94vw); max-height: 92%; overflow: auto;
+}
+.hab { gap: 10px; }
+.hab__topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.hab__marca { color: var(--gold); letter-spacing: .18em; font-size: 12px; }
+.hab__contadores { color: var(--stone); font-size: 11px; letter-spacing: .12em; }
+.hab__moedas { color: var(--gold); font-weight: normal; }
+.hab__nota { margin: 0; line-height: 1.6; }
+
+.hab__lista {
+  display: grid; gap: 6px; outline: none;
+  border-top: 1px solid var(--stone); padding-top: 8px;
+}
+.hab__linha {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  border: 1px solid var(--stone); background: var(--mass);
+  padding: 8px 10px; min-height: 56px; cursor: pointer;
+}
+.hab__linha--sel { outline: 2px solid var(--gold); outline-offset: -2px; }
+.hab__linha--trancada { background: transparent; opacity: .62; cursor: default; }
+.hab__linha--max { border-color: var(--gold); }
+.hab__info { display: grid; gap: 3px; min-width: 0; }
+.hab__nome {
+  margin: 0; color: var(--bone); font-size: 12px; letter-spacing: .14em;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.hab__texto { margin: 0; color: var(--stone); font-size: 11px; line-height: 1.5; }
+.hab__etiqueta {
+  font-size: 10px; letter-spacing: .12em; color: var(--stone);
+  border: 1px solid var(--stone); padding: 0 4px;
+}
+.hab__etiqueta--max { color: var(--gold); border-color: var(--gold); }
+/* três marcas por habilidade: cheias = nível comprado. É informação, não decoração (`§4.6`) */
+.hab__marcas { display: inline-flex; gap: 3px; }
+.hab__marca {
+  width: 12px; height: 12px; border: 1px solid var(--stone); background: transparent;
+  display: inline-block;
+}
+.hab__marca--cheia { background: var(--gold); border-color: var(--gold); }
+.hab__acao { display: flex; align-items: center; gap: 8px; }
+.hab__acao .panel__btn { margin-top: 0; white-space: nowrap; }
+.hab__acao-vazia { color: var(--stone); font-size: 10px; letter-spacing: .12em; }
+.hab__aviso {
+  margin: 0; color: var(--gold); font-size: 11px; letter-spacing: .12em; min-height: 14px;
+}
+.hud__btn--habilidades { display: inline-flex; align-items: center; padding: 3px 6px; }
+
+@media (max-height: 620px) {
+  .hab__linha { min-height: 48px; padding: 6px 8px; }
+  .hab__texto { font-size: 10px; }
+}
+
+/* ---------- UI-22 · MAPA (DEC-043) ---------- */
+/* A planta é uma grelha do tamanho da topologia do setor: as salas ficam nas casas que a cena
+   calculou. `--mapa-cel` é o que cresce/encolhe com o ecrã — as salas nunca mudam de casa. */
+.panel--mapa { z-index: 30; }
+.panel--mapa .panel__inner {
+  width: min(1180px, 96vw); max-width: min(1180px, 96vw);
+  max-height: 94%; overflow: auto; outline: none;
+}
+.mapa {
+  --mapa-cel: 74px;
+  gap: 12px;
+}
+.mapa__topo { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.mapa__marca { color: var(--gold); font-size: 12px; letter-spacing: .34em; }
+.mapa__setor { color: var(--bone); font-size: 12px; letter-spacing: .16em; }
+.mapa__contadores {
+  margin-left: auto; color: var(--stone); font-size: 11px; letter-spacing: .12em;
+}
+
+.mapa__corpo {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); gap: 16px;
+  align-items: start;
+  border-top: 1px solid var(--stone); border-bottom: 1px solid var(--stone);
+  padding: 12px 0;
+}
+.mapa__planta-area { display: grid; gap: 10px; min-width: 0; }
+
+/* a planta: uma casa por sala, na posição que a cena entregou */
+.mapa__planta { display: grid; gap: 8px; justify-content: start; }
+.mapa__sala {
+  position: relative; width: var(--mapa-cel); height: calc(var(--mapa-cel) * .62);
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--stone); background: transparent;
+  color: var(--stone); font-size: 10px; letter-spacing: .08em; cursor: pointer;
+}
+.mapa__sala--visitada { border-color: rgba(198, 190, 170, .8); color: var(--bone); background: rgba(198, 190, 170, .12); }
+.mapa__sala--conhecida { border-style: dashed; opacity: .75; }
+.mapa__sala--atual {
+  border-color: var(--gold); border-width: 2px; color: var(--ink);
+  background: var(--gold); font-weight: 700;
+}
+.mapa__sala--sel { outline: 2px solid var(--gold); outline-offset: 2px; }
+.mapa__id { pointer-events: none; }
+
+/* os corredores: um traço que sai do lado por onde se passa. É o que faz da grelha um mapa */
+.mapa__liga { position: absolute; background: var(--stone); pointer-events: none; }
+.mapa__liga--leste { right: -9px; top: 50%; width: 9px; height: 2px; margin-top: -1px; }
+.mapa__liga--oeste { left: -9px; top: 50%; width: 9px; height: 2px; margin-top: -1px; }
+.mapa__liga--teto { top: -9px; left: 50%; width: 2px; height: 9px; margin-left: -1px; }
+.mapa__liga--piso { bottom: -9px; left: 50%; width: 2px; height: 9px; margin-left: -1px; }
+.mapa__sala--atual .mapa__liga { background: var(--gold); }
+/* a seta de saída do setor vive na borda direita, fora da casa */
+.mapa__portal {
+  position: absolute; right: -16px; top: 50%; transform: translateY(-50%);
+  color: var(--gold); font-size: 12px; line-height: 1;
+}
+
+.mapa__legenda {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 0; padding: 0; list-style: none;
+  color: var(--stone); font-size: 10px; letter-spacing: .1em;
+}
+.mapa__leg::before {
+  content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 6px;
+  border: 1px solid var(--stone); vertical-align: -1px;
+}
+.mapa__leg--atual::before { background: var(--gold); border-color: var(--gold); }
+.mapa__leg--visitada::before { background: rgba(198, 190, 170, .35); border-color: rgba(198, 190, 170, .8); }
+.mapa__leg--conhecida::before { border-style: dashed; }
+.mapa__leg--portal::before { content: none; }
+.mapa__leg--portal { color: var(--gold); }
+
+/* a coluna dos 16 setores: onde se está no mundo, e quanto de cada um já se andou */
+.mapa__setores { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.mapa__setores-titulo {
+  margin: 0; color: var(--gold); font-size: 10px; letter-spacing: .26em;
+}
+.mapa__lista-setores {
+  display: grid; gap: 1px; margin: 0; padding: 0; list-style: none;
+  /* uma coluna: os 16 nomes cabem escritos. Duas colunas truncavam "Galeria Partida" em
+     "Galeria Pa…" — e um mapa com nomes cortados não se lê */
+  grid-template-columns: minmax(0, 1fr);
+}
+.mapa__setor-linha {
+  display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 5px; align-items: baseline;
+  padding: 1px 4px; border-left: 2px solid transparent;
+  color: var(--stone); font-size: 10px; letter-spacing: .04em;
+}
+.mapa__setor-linha--atual { border-left-color: var(--gold); color: var(--bone); background: rgba(198, 190, 170, .08); }
+.mapa__setor-linha--vazio { opacity: .55; }
+.mapa__setor-id { color: var(--gold); font-size: 10px; }
+.mapa__setor-nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mapa__setor-conta { color: var(--bone); font-variant-numeric: tabular-nums; }
+
+.mapa__info {
+  margin: 0; min-height: 16px; color: var(--bone);
+  font-size: 11px; letter-spacing: .12em;
+}
+.mapa__pe { display: flex; justify-content: space-between; gap: 10px; }
+.hud__btn--mapa { display: inline-flex; align-items: center; padding: 3px 6px; }
+
+@media (max-width: 980px) {
+  .mapa { --mapa-cel: 58px; }
+  .mapa__corpo { grid-template-columns: 1fr; }
+  .mapa__lista-setores { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); column-gap: 12px; }
+  .mapa__setores { border-top: 1px dashed var(--stone); padding-top: 8px; }
+  .mapa__lista-setores {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); column-gap: 10px;
+  }
+}
+@media (max-height: 640px) {
+  .mapa { --mapa-cel: 52px; gap: 8px; }
+  .mapa__sala { height: calc(var(--mapa-cel) * .56); }
+}
